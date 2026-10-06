@@ -3,16 +3,15 @@ from __future__ import annotations
 
 import argparse
 import sys
+import tkinter as tk
 from pathlib import Path
-from typing import Optional, Tuple
+from tkinter import filedialog
 
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.widgets import Button, Slider
-import tkinter as tk
-from tkinter import filedialog
 
-import spec_analysis_utils as sau
+from . import spec_analysis_utils as sau
 
 
 def select_spec_file(initialdir: Path | None = None) -> Path | None:
@@ -160,7 +159,7 @@ class SpecFileViewer:
                 va="top",
                 ha="left",
                 fontsize=9,
-                bbox=dict(facecolor="white", alpha=0.75, edgecolor="none"),
+                bbox={"facecolor": "white", "alpha": 0.75, "edgecolor": "none"},
             )
 
         self.fig.canvas.draw_idle()
@@ -169,7 +168,7 @@ class SpecFileViewer:
         plt.show()
 
 
-def main(argv: Optional[list[str]] = None) -> None:
+def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(
         description="Interactively view one .spec file with three subplots: all spectra, mean/std, and a single-spectrum browser."
     )

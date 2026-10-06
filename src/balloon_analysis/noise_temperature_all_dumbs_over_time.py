@@ -19,7 +19,7 @@ from tkinter import filedialog
 import matplotlib.pyplot as plt
 import numpy as np
 
-import spec_analysis_utils as sau
+from . import spec_analysis_utils as sau
 
 TIMESTAMP_RE = re.compile(r"^(\d{14})")
 LOAD_RE = re.compile(r"(hot|cold)$", re.IGNORECASE)
@@ -142,8 +142,8 @@ def calculate_noise_temperatures(
     )
 
     for pair in pairs:
-        hot_times, hot_spectra, hot_meta = sau.load_spec_file(pair.hot.path)
-        cold_times, cold_spectra, cold_meta = sau.load_spec_file(pair.cold.path)
+        hot_times, hot_spectra, _hot_meta = sau.load_spec_file(pair.hot.path)
+        cold_times, cold_spectra, _cold_meta = sau.load_spec_file(pair.cold.path)
 
         if hot_spectra.shape != cold_spectra.shape:
             raise ValueError(
@@ -186,7 +186,7 @@ def calculate_noise_temperatures(
                 # times within the file.
                 if timestamp_seconds > 1e8:
                     elapsed_hours = (
-                        datetime.fromtimestamp(timestamp_seconds) - first_timestamp
+                        datetime.fromtimestamp(timestamp_seconds) - first_timestamp  # noqa: DTZ006
                     ).total_seconds() / 3600.0
                 else:
                     elapsed_hours = (
@@ -250,7 +250,7 @@ def main() -> None:
         else frequency_to_bin(args.if_frequency, bandwidth_ghz, n_bins)
     )
 
-    times_h, dump_indices, temperatures_k = calculate_noise_temperatures(
+    times_h, _dump_indices, temperatures_k = calculate_noise_temperatures(
         pairs, center_bin, args.n_points, float(thot), float(tcold)
     )
 

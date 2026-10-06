@@ -14,19 +14,18 @@ import re
 from datetime import datetime
 from functools import lru_cache
 from pathlib import Path
-from typing import Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.widgets import Button, TextBox
 
-import spec_analysis_utils as sau
+from . import spec_analysis_utils as sau
 
 STAMP_RE = re.compile(r"^(\d{14})")
 LOAD_RE = re.compile(r"(hot|cold)$", re.IGNORECASE)
 
 
-def parse_file(path: Path) -> Optional[tuple[datetime, str, Path]]:
+def parse_file(path: Path) -> tuple[datetime, str, Path] | None:
     """Return timestamp, load type, and path for a recognised spectrum file."""
     match = STAMP_RE.match(path.stem)
     load = LOAD_RE.search(path.stem)
@@ -189,7 +188,7 @@ class ColdLoadTemperatureViewer:
                 f"Δt={separation:.1f} s | T_noise={self.noise_temperature:.2f} K | "
                 f"T_hot={self.hot_temperature:.2f} K | median T_cold={median:.2f} K"
             )
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001
             self.line.set_data([], [])
             self.ax.set_title(
                 f"[{self.index + 1}/{len(self.pairs)}] ERROR: {exc}", color="tab:red"

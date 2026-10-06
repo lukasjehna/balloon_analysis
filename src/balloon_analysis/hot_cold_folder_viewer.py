@@ -7,7 +7,7 @@ This variant can:
 
 Examples
 --------
-uv run python -m src.balloon.analysis.hot_cold_folder_viewer --thot 300 --tcold 5 --pairs-per-average 50 --spectral-bin-size 3
+uv run python -m src.balloon_analysis.hot_cold_folder_viewer --thot 300 --tcold 5 --pairs-per-average 50 --spectral-bin-size 3
 
 Files are recognised case-insensitively when their stem ends in ``hot`` or
 ``cold``. Each hot file is paired with the closest unused cold file in time;
@@ -15,25 +15,25 @@ the timestamp must occur at the beginning of the filename as YYYYMMDDHHMMSS,
 e.g. 20260713160551hot.spec and 20260713160605cold.spec.
 """
 from __future__ import annotations
+
 import argparse
 import re
 from dataclasses import dataclass
 from datetime import datetime
 from functools import lru_cache
 from pathlib import Path
-from typing import Optional
+
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.widgets import Button, TextBox, RadioButtons
+from matplotlib.widgets import Button, RadioButtons, TextBox
 
-import balloon.analysis.spec_analysis_utils as sau
-import balloon.utility.parser_utility as pa
+from . import spec_analysis_utils as sau
 
 STAMP_RE = re.compile(r"^(\d{14})")
 LOAD_RE = re.compile(r"(hot|cold)$", re.IGNORECASE)
 
 
-def parse_file(path: Path) -> Optional[tuple[datetime, str, Path]]:
+def parse_file(path: Path) -> tuple[datetime, str, Path] | None:
     match = STAMP_RE.match(path.stem)
     load = LOAD_RE.search(path.stem)
     if match is None or load is None:
@@ -381,7 +381,7 @@ class SpecViewer:
                 f"T_hot={self.thot:.0f} K,T_cold={self.tcold:.0f} K "
             )
 
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001
             self.line_nt.set_data([], [])
             self.line_hot.set_data([], [])
             self.line_cold.set_data([], [])
@@ -394,7 +394,7 @@ class SpecViewer:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Browse Y-factor noise temperatures from hot/cold .spec pairs. Run with: uv run python -m src.balloon.analysis.noise_temperature_folder_viewer --thot 300 --tcold 5 --pairs-per-average 50 --spectral-bin-size 3")
+    parser = argparse.ArgumentParser(description="Browse Y-factor noise temperatures from hot/cold .spec pairs. Run with: uv run python -m src.balloon_analysis.hot_cold_folder_viewer --thot 300 --tcold 5 --pairs-per-average 50 --spectral-bin-size 3")
     parser.add_argument("directory", nargs="?", help="Measurement folder; omit to choose it graphically.")
     parser.add_argument("--thot", type=float, default=300, help="Hot-load temperature in K (default: 320).")
     parser.add_argument("--tcold", type=float, default=77, help="Cold-load temperature in K (default: 230).")
@@ -422,7 +422,7 @@ def main():
     if args.spectral_bin_size > 1:
         print(f"x-bin -axis over {args.spectral_bin_size} spectral bins.")
 
-    viewer = SpecViewer(pairs, sau.parse_header_csv(directory), args.thot, args.tcold, args.x_axis, 4096, args.pairs_per_average, args.spectral_bin_size, args.goto)
+    SpecViewer(pairs, sau.parse_header_csv(directory), args.thot, args.tcold, args.x_axis, 4096, args.pairs_per_average, args.spectral_bin_size, args.goto)
     plt.show()
 
 

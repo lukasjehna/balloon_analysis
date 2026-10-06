@@ -1,8 +1,8 @@
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Optional, Sequence, Tuple, Dict
 
-import pandas as pd
 import matplotlib.pyplot as plt
+import pandas as pd
 
 
 def load_data(csv_path: Path):
@@ -33,8 +33,8 @@ def load_data(csv_path: Path):
 def choose_file(
     initialdir: Path,
     title: str = "Select data CSV",
-    filetypes: Optional[Sequence[Tuple[str, str]]] = None,
-) -> Optional[Path]:
+    filetypes: Sequence[tuple[str, str]] | None = None,
+) -> Path | None:
     import tkinter as tk
     from tkinter import filedialog
 
@@ -56,9 +56,9 @@ def plot_time_series(
     df,
     series_specs,
     title: str = "",
-    csv_path: Optional[Path] = None,
+    csv_path: Path | None = None,
     show: bool = True,
-) -> Optional[Path]:
+) -> Path | None:
     """
     series_specs: list of dicts with keys:
         - column
@@ -91,7 +91,7 @@ def plot_time_series(
     fig.autofmt_xdate()
     fig.tight_layout(rect=[0, 0.03, 1, 0.95])
 
-    out_path: Optional[Path] = None
+    out_path: Path | None = None
     if csv_path is not None:
         csv_path = Path(csv_path).resolve()
         out_path = csv_path.with_suffix(".png")
@@ -103,7 +103,7 @@ def plot_time_series(
     return out_path
 
 
-def _get_bandwidth_hz(meta: Dict[str, object], n_bins: int) -> Optional[float]:
+def _get_bandwidth_hz(meta: dict[str, object], n_bins: int) -> float | None:
     """
     Extract total bandwidth in Hz from meta['bandwidth'] if possible.
     Accepts values like '200 MHz', '50e6', '1 GHz', '2GHz',

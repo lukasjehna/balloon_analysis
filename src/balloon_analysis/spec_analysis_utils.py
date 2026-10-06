@@ -1,18 +1,17 @@
 #!/usr/bin/env python3
 
-from pathlib import Path
 import csv
 import re
 import tkinter as tk
+from pathlib import Path
 from tkinter import filedialog
-from typing import Optional, List, Dict, Tuple
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 
-def _parse_header_line(header: str) -> Dict[str, str]:
-    meta: Dict[str, str] = {}
+def _parse_header_line(header: str) -> dict[str, str]:
+    meta: dict[str, str] = {}
     parts = [p.strip() for p in header.split(",") if p.strip()]
     for part in parts:
         if ":" in part:
@@ -21,7 +20,7 @@ def _parse_header_line(header: str) -> Dict[str, str]:
     return meta
 
 
-def _find_dedicated_header_file(spec_path: Path) -> Optional[Path]:
+def _find_dedicated_header_file(spec_path: Path) -> Path | None:
     stem = spec_path.stem
     run_stem = stem
     for suffix in ("_hot", "_cold", "_sky", "_amb"):
@@ -29,7 +28,7 @@ def _find_dedicated_header_file(spec_path: Path) -> Optional[Path]:
             run_stem = run_stem[: -len(suffix)]
             break
 
-    candidates: List[Path] = []
+    candidates: list[Path] = []
     preferred = spec_path.parent / f"{run_stem}_pi_lab_header.csv"
     if preferred.exists():
         candidates.append(preferred)
@@ -46,8 +45,8 @@ def _find_dedicated_header_file(spec_path: Path) -> Optional[Path]:
     return None
 
 
-def _parse_dedicated_header_csv(header_csv: Path) -> Dict[str, str]:
-    raw: Dict[str, str] = {}
+def _parse_dedicated_header_csv(header_csv: Path) -> dict[str, str]:
+    raw: dict[str, str] = {}
     with header_csv.open("r", newline="", encoding="utf-8", errors="replace") as f:
         reader = csv.reader(f)
         for row in reader:
@@ -59,7 +58,7 @@ def _parse_dedicated_header_csv(header_csv: Path) -> Dict[str, str]:
                 continue
             raw[k] = v
 
-    mapped: Dict[str, str] = {}
+    mapped: dict[str, str] = {}
     if "n_spectra" in raw:
         mapped["number of spectra"] = raw["n_spectra"]
     if "integration_time_ms" in raw:
@@ -77,7 +76,7 @@ def load_spec_file(spec_path: Path):
         file_bytes = f.read()
 
     header_line = ""
-    meta_raw: Dict[str, str] = {}
+    meta_raw: dict[str, str] = {}
     payload = file_bytes
     header_source = "inline"
 
@@ -112,7 +111,7 @@ def load_spec_file(spec_path: Path):
             f"Could not parse 'number of spectra' from metadata: {header_line!r}"
         ) from exc
 
-    int_time_ms: Optional[int] = None
+    int_time_ms: int | None = None
     s = meta_raw.get("integration time", "")
     if s:
         m = re.search(r"[-+]?\d*\.?\d+", s)
@@ -153,7 +152,7 @@ def load_spec_file(spec_path: Path):
         .reshape(n_spectra, n_bins)
     )
 
-    meta: Dict[str, object] = {
+    meta: dict[str, object] = {
         "header_line": header_line,
         "header_source": header_source,
         "n_spectra": n_spectra,
@@ -163,7 +162,7 @@ def load_spec_file(spec_path: Path):
     return times, spectra, meta
 
 
-def choose_directory(initialdir: Path) -> Optional[Path]:
+def choose_directory(initialdir: Path) -> Path | None:
     root = tk.Tk()
     root.withdraw()
     path = filedialog.askdirectory(
@@ -174,7 +173,7 @@ def choose_directory(initialdir: Path) -> Optional[Path]:
     return Path(path) if path else None
 
 
-def parse_header_csv(meas_dir: Path) -> Dict[str, str]:
+def parse_header_csv(meas_dir: Path) -> dict[str, str]:
     header_files = sorted(meas_dir.glob("*_header.csv"))
     if not header_files:
         return {}
@@ -186,7 +185,7 @@ def parse_header_csv(meas_dir: Path) -> Dict[str, str]:
     except OSError:
         return {}
 
-    meta: Dict[str, str] = {}
+    meta: dict[str, str] = {}
     if not lines:
         return meta
 
@@ -210,7 +209,7 @@ def parse_header_csv(meas_dir: Path) -> Dict[str, str]:
     return meta
 
 
-def _parse_frequency_ghz(raw: Optional[str]) -> Optional[float]:
+def _parse_frequency_ghz(raw: str | None) -> float | None:
     if raw is None:
         return None
     s = raw.strip().replace(" ", "").replace(",", ".")
@@ -237,7 +236,7 @@ def _parse_frequency_ghz(raw: Optional[str]) -> Optional[float]:
     return value
 
 
-def _despike_1d(y: np.ndarray, window: int = 5, sigma_thresh: float = 6.0) -> Tuple[np.ndarray, int]:
+def _despike_1d(y: np.ndarray, window: int = 5, sigma_thresh: float = 6.0) -> tuple[np.ndarray, int]:
     """Replace impulse-like outliers in finite samples using a median/MAD rule.
     smaller sigma_thresh  is more aggressive; window is the size of the median filter (odd integer >= 3)."""
     arr = np.asarray(y, dtype=float)
@@ -269,7 +268,7 @@ def _despike_1d_in_window(
     bin_stop: int,
     window: int = 5,
     sigma_thresh: float = 6.0,
-) -> Tuple[np.ndarray, int]:
+) -> tuple[np.ndarray, int]:
     """Apply despike only inside [bin_start, bin_stop] (inclusive)."""
     arr = np.asarray(y, dtype=float)
     out = arr.copy()
@@ -286,7 +285,7 @@ def _despike_1d_in_window(
     return out, removed
 
 
-def _get_header_value(header_meta: Dict[str, str], *keys: str) -> Optional[str]:
+def _get_header_value(header_meta: dict[str, str], *keys: str) -> str | None:
     meta_lc = {k.lower(): v for k, v in header_meta.items()}
     for k in keys:
         v = meta_lc.get(k.lower())
@@ -295,12 +294,12 @@ def _get_header_value(header_meta: Dict[str, str], *keys: str) -> Optional[str]:
     return None
 
 
-def _get_lo_ghz(header_meta: Dict[str, str]) -> Optional[float]:
+def _get_lo_ghz(header_meta: dict[str, str]) -> float | None:
     raw = _get_header_value(header_meta, "f_LO", "f_RX")
     return _parse_frequency_ghz(raw)
 
 
-def _get_bw_ghz(header_meta: Dict[str, str]) -> Optional[float]:
+def _get_bw_ghz(header_meta: dict[str, str]) -> float | None:
     raw = _get_header_value(header_meta, "BW", "bandwidth")
     return _parse_frequency_ghz(raw)
 
@@ -316,17 +315,17 @@ def _frequency_offset_to_bin_index(
     """
     if bandwidth_ghz <= 0 or n_bins <= 0:
         return 0
-    bin_idx = int(round((freq_offset_ghz / bandwidth_ghz) * n_bins))
+    bin_idx = round((freq_offset_ghz / bandwidth_ghz) * n_bins)
     return max(0, min(n_bins - 1, bin_idx))
 
 
 def _compute_bin_window_from_center_freq(
     center_freq_ghz: float,
-    f_rx_ghz: Optional[float],
-    bandwidth_ghz: Optional[float],
+    f_rx_ghz: float | None,
+    bandwidth_ghz: float | None,
     bin_offset: int = 615,
     n_bins: int = 8192,
-) -> Tuple[int, int]:
+) -> tuple[int, int]:
     """Compute bin_start and bin_stop centered on center_freq_ghz.
 
     If f_rx_ghz and bandwidth_ghz are available, compute the absolute offset frequency
@@ -347,11 +346,11 @@ def _compute_bin_window_from_center_freq(
 
 
 def spectroscopy_convert(
-    f_if: Optional[float] = None,
-    f_lo: Optional[float] = None,
-    f_sig: Optional[float] = None,
+    f_if: float | None = None,
+    f_lo: float | None = None,
+    f_sig: float | None = None,
     sideband: str = "USB",
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """
     Given any two of (f_if, f_lo, f_sig) in GHz and the sideband ("USB" or "LSB"),
     compute the third and return a dict {'f_if':..., 'f_lo':..., 'f_sig':...}.
@@ -436,7 +435,7 @@ def compute_brightness_temperature(avg_sig, avg_cold, avg_hot, t_cold_k, t_hot_k
 
     return t_cold_k + (t_hot_k - t_cold_k) * normalized_spectrum
 
-def build_x_axis(n_bins: int, header_meta: Dict[str, str], x_axis_mode: str) -> Tuple[np.ndarray, str]:
+def build_x_axis(n_bins: int, header_meta: dict[str, str], x_axis_mode: str) -> tuple[np.ndarray, str]:
     if x_axis_mode == "bins":
         return np.arange(n_bins), "Bin index"
 
@@ -450,7 +449,7 @@ def build_x_axis(n_bins: int, header_meta: Dict[str, str], x_axis_mode: str) -> 
 
 def _apply_x_axis_format(
     ax: plt.Axes,
-    header_meta: Dict[str, str],
+    header_meta: dict[str, str],
     x_axis_mode: str,
     default_label: str,
 ) -> None:
@@ -480,8 +479,8 @@ def _apply_x_axis_format(
         ax_top.set_xlabel("f_LSB [GHz]")
 
 
-def accumulate_group_average(files: List[Path]) -> Tuple[np.ndarray, int]:
-    sum_spectrum: Optional[np.ndarray] = None
+def accumulate_group_average(files: list[Path]) -> tuple[np.ndarray, int]:
+    sum_spectrum: np.ndarray | None = None
     total_n = 0
 
     for spec_path in files:
@@ -518,7 +517,7 @@ def plot_hot_cold_average(
     n_hot: int,
     avg_cold: np.ndarray,
     n_cold: int,
-    header_meta: Dict[str, str],
+    header_meta: dict[str, str],
     x_axis_mode: str = "frequency",
 ) -> Path:
     x, x_label = build_x_axis(avg_hot.size, header_meta, x_axis_mode)
@@ -535,7 +534,7 @@ def plot_hot_cold_average(
     t_hot = header_meta.get("t_hot")
     t_cold = header_meta.get("t_cold")
 
-    title_parts: List[str] = []
+    title_parts: list[str] = []
     if f_lo:
         title_parts.append(f"f_LO={f_lo}")
     if bw:
@@ -553,9 +552,9 @@ def plot_hot_cold_average(
 
 def plot_all_hot_cold_lines(
     meas_dir: Path,
-    hot_files: List[Path],
-    cold_files: List[Path],
-    header_meta: Dict[str, str],
+    hot_files: list[Path],
+    cold_files: list[Path],
+    header_meta: dict[str, str],
     x_axis_mode: str = "frequency",
 ) -> Path:
     fig, ax = plt.subplots(figsize=(10, 5))
@@ -591,7 +590,7 @@ def plot_all_hot_cold_lines(
 
     f_lo = _get_header_value(header_meta, "f_LO", "f_RX")
     bw = _get_header_value(header_meta, "BW", "bandwidth")
-    title_parts: List[str] = []
+    title_parts: list[str] = []
     if f_lo:
         title_parts.append(f"f_LO={f_lo}")
     if bw:
@@ -612,12 +611,12 @@ def _resolve_measurement_dir_with_specs(meas_dir: Path) -> Path:
     candidates = [d for d in subdirs if any(d.glob("*.spec"))]
     if not candidates:
         return meas_dir
-    chosen = sorted(candidates, key=lambda p: (p.name, p.stat().st_mtime))[-1]
+    chosen = max(candidates, key=lambda p: (p.name, p.stat().st_mtime))
     print(f"No .spec files in {meas_dir}; using subfolder {chosen}")
     return chosen
 
 
-def _parse_temperature_value(raw: Optional[str]) -> Optional[float]:
+def _parse_temperature_value(raw: str | None) -> float | None:
     if raw is None:
         return None
     s = raw.strip().replace(",", ".")
@@ -636,7 +635,7 @@ def _parse_temperature_value(raw: Optional[str]) -> Optional[float]:
     return value + 273.15 if is_celsius else value
 
 
-def _extract_hot_cold_kelvin(header_meta: Dict[str, str]) -> Tuple[Optional[float], Optional[float]]:
+def _extract_hot_cold_kelvin(header_meta: dict[str, str]) -> tuple[float | None, float | None]:
     meta_lc = {k.lower(): v for k, v in header_meta.items()}
     t_hot_raw = meta_lc.get("t_hot") or meta_lc.get("thot")
     t_cold_raw = meta_lc.get("t_cold") or meta_lc.get("tcold")
@@ -647,12 +646,12 @@ def plot_noise_temperature(
     meas_dir: Path,
     avg_hot: np.ndarray,
     avg_cold: np.ndarray,
-    header_meta: Dict[str, str],
+    header_meta: dict[str, str],
     x_axis_mode: str = "frequency",
     y_min: float = 0.0,
     y_max: float = 30000.0,
     despike_enabled: bool = False,
-) -> Optional[Path]:
+) -> Path | None:
     t_hot_k, t_cold_k = _extract_hot_cold_kelvin(header_meta)
     if t_hot_k is None or t_cold_k is None:
         print("Skipping noise-temperature plot: missing t_hot/t_cold in header.")
@@ -690,7 +689,7 @@ def plot_noise_temperature(
     return out_path
 
 
-def print_header_meta(header_meta: Dict[str, str]) -> None:
+def print_header_meta(header_meta: dict[str, str]) -> None:
     if not header_meta:
         print("Header metadata: <none found>")
         return
@@ -703,7 +702,7 @@ def save_hot_cold_average_csv(
     meas_dir: Path,
     avg_hot: np.ndarray,
     avg_cold: np.ndarray,
-    header_meta: Dict[str, str],
+    header_meta: dict[str, str],
 ) -> Path:
     if avg_hot.size != avg_cold.size:
         raise ValueError("avg_hot and avg_cold must have the same length.")
@@ -740,14 +739,14 @@ def add_relative_frequency_top_axis(
 
 
 def launch_interactive_noise_temperature_browser(
-    entries: List[Dict[str, object]],
+    entries: list[dict[str, object]],
     bin_start: int = 200,
     bin_stop: int = 1850,
     despike_enabled: bool = False,
     despike_window: int = 5,
     despike_sigma: float = 6.0,
-    center_freq_ghz: Optional[float] = None,
-) -> Optional[plt.Figure]:
+    center_freq_ghz: float | None = None,
+) -> plt.Figure | None:
     if not entries:
         return None
 
@@ -780,13 +779,13 @@ def launch_interactive_noise_temperature_browser(
         slider_w = Slider(ax_w, "despike window", 3, 51, valinit=state["dsp_window"], valstep=1)
         slider_s = Slider(ax_s, "despike sigma", 0.5, 20.0, valinit=state["dsp_sigma"])
 
-    def _get_bin_window_for_entry(e: Dict[str, object]) -> Tuple[int, int]:
+    def _get_bin_window_for_entry(e: dict[str, object]) -> tuple[int, int]:
         """Get bin_start and bin_stop for current entry, using per-entry values or defaults."""
         if "bin_start" in e and "bin_stop" in e:
             return int(e["bin_start"]), int(e["bin_stop"])
         return bin_start, bin_stop
 
-    def _compute_t_noise_for_entry(e: Dict[str, object]) -> Tuple[np.ndarray, int]:
+    def _compute_t_noise_for_entry(e: dict[str, object]) -> tuple[np.ndarray, int]:
         entry_bin_start, entry_bin_stop = _get_bin_window_for_entry(e)
 
         # Backward-compatible path: precomputed t_noise only
@@ -839,7 +838,7 @@ def launch_interactive_noise_temperature_browser(
         return t_noise, removed
 
 
-    def _get_x_axis_for_entry(e: Dict[str, object], n_bins: int) -> Tuple[np.ndarray, str]:
+    def _get_x_axis_for_entry(e: dict[str, object], n_bins: int) -> tuple[np.ndarray, str]:
         header_meta = e.get("header_meta")
         if isinstance(header_meta, dict):
             x_if, lbl = build_x_axis(n_bins, header_meta, x_axis_mode="frequency")
@@ -915,9 +914,8 @@ def launch_interactive_noise_temperature_browser(
 
     def _on_slider(_val) -> None:
         if slider_w is not None:
-            w = int(round(slider_w.val))
-            if w < 3:
-                w = 3
+            w = round(slider_w.val)
+            w = max(w, 3)
             if w % 2 == 0:
                 w += 1
             state["dsp_window"] = w

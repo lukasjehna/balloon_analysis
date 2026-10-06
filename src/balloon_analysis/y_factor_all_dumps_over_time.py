@@ -33,12 +33,11 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from tkinter import filedialog
-from typing import List, Tuple, Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-import spec_analysis_utils as sau
+from . import spec_analysis_utils as sau
 
 TIMESTAMP_RE = re.compile(r"^(\d{14})")
 LOAD_RE = re.compile(r"(hot|cold)$", re.IGNORECASE)
@@ -145,7 +144,7 @@ def y_factor_at_bin_window(
     return float(np.mean(hot_window)) / cold_power
 
 
-def load_spec_timestamps(spec_path: Path) -> List[float]:
+def load_spec_timestamps(spec_path: Path) -> list[float]:
     """
     Load per-spectrum timestamps from a .spec file.
 
@@ -159,7 +158,7 @@ def load_spec_timestamps(spec_path: Path) -> List[float]:
 
     with spec_path.open("r", encoding="utf-8", errors="replace") as f:
         # Skip header line
-        header_line = f.readline()
+        f.readline()
         reader = csv.reader(f)
         for row in reader:
             if len(row) < 4:
@@ -182,7 +181,7 @@ def load_spec_timestamps(spec_path: Path) -> List[float]:
 
 def calculate_y_factors_per_spectrum(
     pairs: list[HotColdPair], center_bin: int, n_points: int
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Compute Y-factor for each individual spectrum pair using timestamps from .spec files.
 
@@ -201,7 +200,7 @@ def calculate_y_factors_per_spectrum(
     pair_indices: list[int] = []
 
     # First pass: determine the global first timestamp (from spectrum 0 of first pair)
-    first_timestamp: Optional[float] = None
+    first_timestamp: float | None = None
     for pair in pairs:
         ts_hot = load_spec_timestamps(pair.hot.path)
         ts_cold = load_spec_timestamps(pair.cold.path)
@@ -310,7 +309,7 @@ def main() -> None:
     else:
         center_bin = args.bin
 
-    times_h, y_factors, pair_indices = calculate_y_factors_per_spectrum(
+    times_h, y_factors, _pair_indices = calculate_y_factors_per_spectrum(
         pairs, center_bin, args.n_points
     )
 

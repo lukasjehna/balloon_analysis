@@ -26,28 +26,24 @@ from __future__ import annotations
 
 import argparse
 import re
-import sys
 from functools import lru_cache
 from pathlib import Path
-from typing import List, Optional, Tuple
 
-import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Button, TextBox
 
-import spec_analysis_utils as sau
-
+from . import spec_analysis_utils as sau
 
 _NUM_RE = re.compile(r"(\d+)")
 
 
-def _natural_sort_key(path: Path) -> Tuple:
+def _natural_sort_key(path: Path) -> tuple:
     """Sort filenames so embedded numbers (e.g. timestamps) order correctly."""
     parts = _NUM_RE.split(path.name)
     return tuple(int(p) if p.isdigit() else p for p in parts)
 
 
-def scan_spec_files(directory: Path, recursive: bool = False) -> List[Path]:
+def scan_spec_files(directory: Path, recursive: bool = False) -> list[Path]:
     """Return a sorted list of .spec files in `directory` without reading them."""
     pattern = "**/*.spec" if recursive else "*.spec"
     files = list(directory.glob(pattern))
@@ -58,8 +54,8 @@ def scan_spec_files(directory: Path, recursive: bool = False) -> List[Path]:
 class SpecViewer:
     """Interactive, lazy-loading browser for a list of .spec files."""
 
-    def __init__(self, spec_files: List[Path], x_axis_mode: str = "frequency",
-                 header_meta: Optional[dict] = None, cache_size: int = 64):
+    def __init__(self, spec_files: list[Path], x_axis_mode: str = "frequency",
+                 header_meta: dict | None = None, cache_size: int = 64):
         if not spec_files:
             raise ValueError("No .spec files provided to SpecViewer.")
         self.spec_files = spec_files
@@ -201,7 +197,7 @@ class SpecViewer:
         plt.show()
 
 
-def main(argv: Optional[List[str]] = None) -> None:
+def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Interactively browse .spec spectrometer files.")
     parser.add_argument("directory", nargs="?", default=None,
                          help="Folder containing .spec files. If omitted, a folder-picker dialog opens.")

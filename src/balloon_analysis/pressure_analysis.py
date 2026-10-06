@@ -1,5 +1,6 @@
 from pathlib import Path
 
+
 def get_series_specs():
     # Your CSV: time, temperature_c, humidity_pct, pressure_mbar or pressure_hpa
     return [

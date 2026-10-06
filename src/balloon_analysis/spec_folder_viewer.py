@@ -6,23 +6,22 @@ import re
 import sys
 from functools import lru_cache
 from pathlib import Path
-from typing import List, Optional, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.widgets import Button, TextBox
 
-import spec_analysis_utils as sau
+from . import spec_analysis_utils as sau
 
 NUM_RE = re.compile(r"(\d+)")
 
 
-def natural_sort_key(path: Path) -> Tuple:
+def natural_sort_key(path: Path) -> tuple:
     parts = NUM_RE.split(path.name)
     return tuple(int(p) if p.isdigit() else p.lower() for p in parts)
 
 
-def scan_spec_files(directory: Path, recursive: bool = False) -> List[Path]:
+def scan_spec_files(directory: Path, recursive: bool = False) -> list[Path]:
     pattern = "**/*.spec" if recursive else "*.spec"
     files = list(directory.glob(pattern))
     files.sort(key=natural_sort_key)
@@ -32,9 +31,9 @@ def scan_spec_files(directory: Path, recursive: bool = False) -> List[Path]:
 class SpecViewer:
     def __init__(
         self,
-        spec_files: List[Path],
+        spec_files: list[Path],
         x_axis_mode: str = "frequency",
-        headermeta: Optional[dict] = None,
+        headermeta: dict | None = None,
         cache_size: int = 64,
     ):
         if not spec_files:
@@ -166,7 +165,7 @@ class SpecViewer:
             self.fig.canvas.draw_idle()
             return
 
-        times, spectra, meta = loaded
+        _times, spectra, meta = loaded
         x, xlabel = sau.build_x_axis(spectra.shape[1], meta, self.x_axis_mode)
 
         for spectrum in spectra:
@@ -209,7 +208,7 @@ class SpecViewer:
                 va="top",
                 ha="left",
                 fontsize=9,
-                bbox=dict(facecolor="white", alpha=0.75, edgecolor="none"),
+                bbox={"facecolor": "white", "alpha": 0.75, "edgecolor": "none"},
             )
 
         self.fig.canvas.draw_idle()
@@ -218,7 +217,7 @@ class SpecViewer:
         plt.show()
 
 
-def main(argv: Optional[List[str]] = None) -> None:
+def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Interactively browse .spec spectrometer files with two subplots.")
     parser.add_argument("directory", nargs="?", default=None, help="Folder containing .spec files. If omitted, a folder-picker dialog opens.")
     parser.add_argument("--x-axis", dest="xaxis", choices=["frequency", "bins", "sidebands"], default="frequency")

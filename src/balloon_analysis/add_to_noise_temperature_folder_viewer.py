@@ -7,19 +7,18 @@ import re
 from datetime import datetime
 from functools import lru_cache
 from pathlib import Path
-from typing import Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.widgets import Button, RadioButtons, TextBox
 
-import balloon.analysis.spec_analysis_utils as sau
+import balloon_analysis.spec_analysis_utils as sau
 
 STAMP_RE = re.compile(r"^(\d{14})")
 LOAD_RE = re.compile(r"(hot|cold)$", re.IGNORECASE)
 
 
-def parse_file(path: Path) -> Optional[tuple[datetime, str, Path]]:
+def parse_file(path: Path) -> tuple[datetime, str, Path] | None:
     match = STAMP_RE.match(path.stem)
     load = LOAD_RE.search(path.stem)
     if match is None or load is None:
@@ -284,7 +283,7 @@ class NoiseTemperatureViewer:
                 f"T_cold={self.tcold:.2f} K | offset={self.offset:g}"
             )
             self.autoscale()
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001
             for line in (self.line_result, self.line_hot, self.line_cold, self.line_aux):
                 line.set_data([], [])
             self.ax_result.set_title(f"[{self.index + 1}/{len(self.pairs)}] ERROR: {exc}", color="tab:red")
@@ -315,7 +314,7 @@ def main():
     if not pairs:
         parser.error("No timestamped hot/cold pairs found within the requested tolerance.")
 
-    viewer = NoiseTemperatureViewer(
+    NoiseTemperatureViewer(
         pairs=pairs,
         header_meta=sau.parse_header_csv(directory),
         thot=args.thot,

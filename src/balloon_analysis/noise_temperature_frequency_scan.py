@@ -7,25 +7,24 @@ Example:
 python3 src/analysis/noise_temperature_frequency_scan.py --t-hot 296 --t-cold 77 --bin-start 200 --bin-stop 1850 --despike --errorbars
 """
 
-from pathlib import Path
 import argparse
-from typing import Optional, List, Tuple
 import tkinter as tk
+from pathlib import Path
 from tkinter import filedialog
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
-import analysis.spec_analysis_utils as spec_analysis_utils
+from . import spec_analysis_utils as sau
 
 
-def _extract_hot_cold_kelvin(header_meta: dict) -> Tuple[Optional[float], Optional[float]]:
+def _extract_hot_cold_kelvin(header_meta: dict) -> tuple[float | None, float | None]:
     meta_lc = {k.lower(): v for k, v in header_meta.items()}
     t_hot_raw = meta_lc.get("t_hot") or meta_lc.get("thot")
     t_cold_raw = meta_lc.get("t_cold") or meta_lc.get("tcold")
-    return spec_analysis_utils._parse_temperature_value(t_hot_raw), spec_analysis_utils._parse_temperature_value(t_cold_raw)
+    return sau._parse_temperature_value(t_hot_raw), sau._parse_temperature_value(t_cold_raw)
 
-def _select_single_directory(initialdir: Path) -> Optional[Path]:
+def _select_single_directory(initialdir: Path) -> Path | None:
     root = tk.Tk()
     root.withdraw()
     path = filedialog.askdirectory(
@@ -36,15 +35,15 @@ def _select_single_directory(initialdir: Path) -> Optional[Path]:
     return Path(path) if path else None
 
 
-def _discover_measurement_dirs(main_dir: Path) -> List[Path]:
-    discovered: List[Path] = []
+def _discover_measurement_dirs(main_dir: Path) -> list[Path]:
+    discovered: list[Path] = []
     seen = set()
 
     # Include main_dir itself, then direct subdirectories.
     candidates = [main_dir] + sorted([p for p in main_dir.iterdir() if p.is_dir()])
 
     for candidate in candidates:
-        meas_dir = spec_analysis_utils._resolve_measurement_dir_with_specs(candidate)
+        meas_dir = sau._resolve_measurement_dir_with_specs(candidate)
         key = str(meas_dir.resolve())
         if key in seen:
             continue
@@ -56,7 +55,7 @@ def _discover_measurement_dirs(main_dir: Path) -> List[Path]:
 
 
 
-def main(argv: Optional[List[str]] = None) -> None:
+def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Average noise temperature from one main folder.")
     parser.add_argument( "--folder", type=str, default=None, help="Main folder containing measurement directories. If omitted, GUI single-folder selection is used.",)
     parser.add_argument("--t-hot", type=str, default="296", help="Override T_hot (e.g. 296 or 23C).")
@@ -95,14 +94,14 @@ def main(argv: Optional[List[str]] = None) -> None:
     # Output files in selected folder
     summary_txt = main_folder / "noise_temperature_frequency_scan_summary.txt"
 
-    freqs_ghz: List[float] = []
-    means: List[float] = []
-    stds: List[float] = []
-    removed_spikes_per_meas: List[int] = []
-    interactive_noise_entries: List[dict] = []
-    summary_lines: List[str] = []
-    used_bin_starts: List[int] = []
-    used_bin_stops: List[int] = []
+    freqs_ghz: list[float] = []
+    means: list[float] = []
+    stds: list[float] = []
+    removed_spikes_per_meas: list[int] = []
+    interactive_noise_entries: list[dict] = []
+    summary_lines: list[str] = []
+    used_bin_starts: list[int] = []
+    used_bin_stops: list[int] = []
 
     for meas_dir in measurement_dirs:
         if not meas_dir.is_dir():
@@ -120,16 +119,16 @@ def main(argv: Optional[List[str]] = None) -> None:
             print(f"Skipping (missing hot/cold files): {meas_dir}")
             continue
 
-        avg_hot, _ = spec_analysis_utils.accumulate_group_average(hot_files)
-        avg_cold, _ = spec_analysis_utils.accumulate_group_average(cold_files)
+        avg_hot, _ = sau.accumulate_group_average(hot_files)
+        avg_cold, _ = sau.accumulate_group_average(cold_files)
 
-        header_meta = spec_analysis_utils.parse_header_csv(meas_dir)
+        header_meta = sau.parse_header_csv(meas_dir)
         # Also read inline metadata from the .spec file so bandwidth is available
-        _, _, spec_meta = spec_analysis_utils.load_spec_file(spec_files[0])
+        _, _, spec_meta = sau.load_spec_file(spec_files[0])
         header_meta = {**header_meta, **{k: str(v) for k, v in spec_meta.items() if v is not None}}
 
         meta_lc = {k.lower(): v for k, v in header_meta.items()}
-        f_rx_ghz = spec_analysis_utils._parse_frequency_ghz(meta_lc.get("f_rx"))
+        f_rx_ghz = sau._parse_frequency_ghz(meta_lc.get("f_rx"))
         if f_rx_ghz is None:
             print(f"Skipping (missing/invalid f_RX): {meas_dir}")
             continue
@@ -146,8 +145,8 @@ def main(argv: Optional[List[str]] = None) -> None:
 
         # Compute bin window for this measurement if not explicitly provided
         if args.bin_start is None or args.bin_stop is None:
-            bw_ghz = spec_analysis_utils._get_bw_ghz(header_meta)
-            bin_start, bin_stop = spec_analysis_utils._compute_bin_window_from_center_freq(
+            bw_ghz = sau._get_bw_ghz(header_meta)
+            bin_start, bin_stop = sau._compute_bin_window_from_center_freq(
                 center_freq_ghz=args.center_freq,
                 f_rx_ghz=f_rx_ghz,
                 bandwidth_ghz=bw_ghz,
@@ -164,7 +163,7 @@ def main(argv: Optional[List[str]] = None) -> None:
         used_bin_starts.append(bin_start)
         used_bin_stops.append(bin_stop)
 
-        t_noise = spec_analysis_utils.compute_noise_temperature(avg_hot, avg_cold, t_hot_k, t_cold_k)
+        t_noise = sau.compute_noise_temperature(avg_hot, avg_cold, t_hot_k, t_cold_k)
 
         start = max(0, bin_start)
         stop_exclusive = min(t_noise.size, bin_stop + 1)
@@ -175,7 +174,7 @@ def main(argv: Optional[List[str]] = None) -> None:
         removed_spikes = 0
         t_noise_for_stats = t_noise
         if args.despike:
-            t_noise_for_stats, removed_spikes = spec_analysis_utils._despike_1d_in_window(
+            t_noise_for_stats, removed_spikes = sau._despike_1d_in_window(
                 t_noise,
                 bin_start=start,
                 bin_stop=stop_exclusive - 1,
@@ -238,7 +237,7 @@ def main(argv: Optional[List[str]] = None) -> None:
     y = np.asarray(means, dtype=float)[order]
     yerr = np.asarray(stds, dtype=float)[order]
     spike_counts = np.asarray(removed_spikes_per_meas, dtype=int)[order]
-    ordered_entries = [interactive_noise_entries[i] for i in np.argsort(freqs_ghz)]
+    [interactive_noise_entries[i] for i in np.argsort(freqs_ghz)]
 
     center_freq_ghz = args.center_freq
     print(f"Using center frequency {center_freq_ghz:.3f} GHz for relative frequency axis.")
@@ -263,7 +262,7 @@ def main(argv: Optional[List[str]] = None) -> None:
     ax.set_ylabel("Average noise temperature [K]")
     ax.set_xlabel("f_RX [GHz]")
 
-    ax_top = spec_analysis_utils.add_relative_frequency_top_axis(ax, center_freq_ghz)
+    ax_top = sau.add_relative_frequency_top_axis(ax, center_freq_ghz)
     ax_top.tick_params(axis="x", rotation=30, labelsize=9)
 
     ax.set_title(
@@ -287,7 +286,7 @@ def main(argv: Optional[List[str]] = None) -> None:
         ax_sp.set_ylabel("Removed spikes [count]")
         ax_sp.set_xlabel("f_RX [GHz]")
 
-        ax_sp_top = spec_analysis_utils.add_relative_frequency_top_axis(ax_sp, center_freq_ghz)
+        ax_sp_top = sau.add_relative_frequency_top_axis(ax_sp, center_freq_ghz)
         ax_sp_top.tick_params(axis="x", rotation=30, labelsize=9)
 
         ax_sp.set_title(
@@ -309,7 +308,7 @@ def main(argv: Optional[List[str]] = None) -> None:
     summary_txt.write_text("\n".join(summary_lines) + "\n", encoding="utf-8")
     print(f"Saved summary: {summary_txt}")
 
-    browser_fig = spec_analysis_utils.launch_interactive_noise_temperature_browser(
+    browser_fig = sau.launch_interactive_noise_temperature_browser(
         entries=interactive_noise_entries,
         bin_start=browser_bin_start,
         bin_stop=browser_bin_stop,

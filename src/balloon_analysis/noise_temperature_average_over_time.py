@@ -1,20 +1,16 @@
 #!/usr/bin/env python3
-"""Something is wrong here. Is gives negative cold load temperatures.
-Plot calculated cold-load temperature versus time for hot/cold .spec pairs.
+"""Plot Y-factor noise temperature versus time for hot/cold .spec pairs.
 
-The script uses a known receiver noise temperature and hot-load temperature to
-invert the Y-factor equation and calculate the cold-load temperature for every
-hot/cold spectrum pair:
+The script opens a folder chooser when no directory is supplied, finds files
+whose names start with YYYYMMDDHHMMSS and end in hot.spec or cold.spec, pairs
+each hot file with the nearest unused cold file, and evaluates the noise
+temperature at one IF frequency. The x-axis is hours since the first spectrum.
 
-    T_cold = (T_hot - Y * T_noise) / (Y - 1)
+By default it averages over 5 adjacent bins around the IF frequency.
 
-where Y is the ratio of the averaged hot and cold powers. The x-axis is hours
-since the first spectrum.
-Hm, this does not make sense
-
-Examples:
-    python3 cold_load_temperature_over_time.py /path/to/measurement
-    python3 src/analysis/cold_load_temperature_over_time.py --noise-temperature 15000 --thot 300 --if-frequency 270 --n-points 5
+Example:
+    python3 noise_temperature_over_time.py /path/to/measurement
+    python3 src/analysis/noise_temperature_average_over_time.py --if-frequency 270 --n-points 5 --thot 300 --tcold 5
 """
 from __future__ import annotations
 
@@ -29,7 +25,7 @@ from tkinter import filedialog
 import matplotlib.pyplot as plt
 import numpy as np
 
-import spec_analysis_utils as sau
+from . import spec_analysis_utils as sau
 
 TIMESTAMP_RE = re.compile(r"^(\d{14})")
 LOAD_RE = re.compile(r"(hot|cold)$", re.IGNORECASE)
@@ -77,7 +73,6 @@ def find_pairs(directory: Path, recursive: bool, tolerance_s: float) -> list[Hot
         for path in directory.glob(pattern)
         if (parsed_file := parse_spectrum_file(path)) is not None
     ]
-
     hot = sorted((item for item in parsed if item.load == "hot"), key=lambda x: x.timestamp)
     cold = sorted((item for item in parsed if item.load == "cold"), key=lambda x: x.timestamp)
 
@@ -113,21 +108,18 @@ def mean_squared_spectrum(path: Path) -> np.ndarray:
     return sau.file_mean_spectrum(path)
 
 
-def cold_temperature_at_bin_window(
+def noise_temperature_at_bin_window(
     hot_spectrum: np.ndarray,
     cold_spectrum: np.ndarray,
     center_bin: int,
     n_points: int,
-    noise_temperature_k: float,
     hot_temperature_k: float,
+    cold_temperature_k: float,
 ) -> float:
-    """Calculate cold-load temperature from the Y-factor over a bin window."""
+    """Compute Y-factor noise temperature using an average over n_points around center_bin."""
     n_bins = hot_spectrum.size
     if cold_spectrum.size != n_bins:
         raise ValueError("Hot and cold spectra must have the same length.")
-
-    if n_points < 1:
-        raise ValueError("n_points must be at least 1.")
 
     half = n_points // 2
     start = max(0, center_bin - half)
@@ -135,11 +127,13 @@ def cold_temperature_at_bin_window(
 
     hot_window = hot_spectrum[start:stop]
     cold_window = cold_spectrum[start:stop]
+
     if hot_window.size == 0 or cold_window.size == 0:
         return float("nan")
 
     hot_power = float(np.mean(hot_window))
     cold_power = float(np.mean(cold_window))
+
     if cold_power <= 0:
         return float("nan")
 
@@ -147,15 +141,15 @@ def cold_temperature_at_bin_window(
     if y_factor <= 1.0:
         return float("nan")
 
-    return (hot_temperature_k - y_factor * noise_temperature_k) / (y_factor - 1.0)
+    return (hot_temperature_k - y_factor * cold_temperature_k) / (y_factor - 1.0)
 
 
-def calculate_cold_temperatures(
+def calculate_noise_temperatures(
     pairs: list[HotColdPair],
     center_bin: int,
     n_points: int,
-    noise_temperature_k: float,
     hot_temperature_k: float,
+    cold_temperature_k: float,
 ) -> tuple[np.ndarray, np.ndarray]:
     times_h: list[float] = []
     temperatures_k: list[float] = []
@@ -168,24 +162,20 @@ def calculate_cold_temperatures(
         cold = mean_squared_spectrum(pair.cold.path)
         if hot.size != cold.size:
             raise ValueError(
-                f"Bin-count mismatch for {pair.hot.path.name} and "
-                f"{pair.cold.path.name}: {hot.size} versus {cold.size}."
+                f"Bin-count mismatch for {pair.hot.path.name} and {pair.cold.path.name}: "
+                f"{hot.size} versus {cold.size}."
             )
+
         if not 0 <= center_bin < hot.size:
             raise ValueError(f"Center bin {center_bin} is outside 0..{hot.size - 1}.")
 
         pair_timestamp = min(pair.hot.timestamp, pair.cold.timestamp)
         elapsed_hours = (pair_timestamp - first_timestamp).total_seconds() / 3600.0
-        cold_temperature = cold_temperature_at_bin_window(
-            hot,
-            cold,
-            center_bin,
-            n_points,
-            noise_temperature_k,
-            hot_temperature_k,
+        noise_temperature = noise_temperature_at_bin_window(
+            hot, cold, center_bin, n_points, hot_temperature_k, cold_temperature_k
         )
         times_h.append(elapsed_hours)
-        temperatures_k.append(cold_temperature)
+        temperatures_k.append(noise_temperature)
 
     return np.asarray(times_h), np.asarray(temperatures_k)
 
@@ -205,15 +195,8 @@ def main() -> None:
         "--n-points", type=int, default=5,
         help="Number of adjacent bins to average around the center bin (default: 5).",
     )
-    parser.add_argument(
-        "--noise-temperature", "--tnoise", dest="noise_temperature",
-        type=float, default=15000.0,
-        help="Receiver noise temperature in K (default: 15000).",
-    )
-    parser.add_argument(
-        "--thot", type=float, default=300.0,
-        help="Hot-load temperature in K (default: 300).",
-    )
+    parser.add_argument("--thot", type=float, default=None, help="Hot temperature in K.")
+    parser.add_argument("--tcold", type=float, default=None, help="Cold temperature in K.")
     parser.add_argument(
         "--pair-tolerance", type=float, default=60.0,
         help="Maximum hot/cold separation in seconds (default: 60).",
@@ -221,11 +204,6 @@ def main() -> None:
     parser.add_argument("--recursive", action="store_true", help="Search subdirectories too.")
     parser.add_argument("--output", type=Path, default=None, help="Optional PNG output path.")
     args = parser.parse_args()
-
-    if args.noise_temperature <= 0:
-        parser.error("--noise-temperature must be positive.")
-    if args.thot <= 0:
-        parser.error("--thot must be positive.")
 
     directory = choose_folder() if args.directory is None else Path(args.directory).expanduser().resolve()
     if directory is None:
@@ -238,7 +216,13 @@ def main() -> None:
         parser.error("No timestamped hot/cold pairs found within the requested tolerance.")
 
     header = sau.parse_header_csv(directory)
-    first_hot = pairs[0].hot.path
+    thot_from_header, tcold_from_header = sau._extract_hot_cold_kelvin(header)
+    thot = args.thot if args.thot is not None else thot_from_header
+    tcold = args.tcold if args.tcold is not None else tcold_from_header
+    if thot is None or tcold is None:
+        parser.error("Hot/cold temperatures are missing. Supply --thot and --tcold.")
+
+    first_hot, _first_cold = pairs[0].hot.path, pairs[0].cold.path
     _, first_spectrum, first_meta = sau.load_spec_file(first_hot)
     n_bins = first_spectrum.shape[1]
     bandwidth_ghz = sau._get_bw_ghz(header)
@@ -246,30 +230,23 @@ def main() -> None:
         bandwidth_ghz = sau._parse_frequency_ghz(first_meta.get("bandwidth"))
 
     if args.bin is None:
-        try:
-            center_bin = frequency_to_bin(args.if_frequency, bandwidth_ghz, n_bins)
-        except ValueError as error:
-            parser.error(str(error))
+        center_bin = frequency_to_bin(args.if_frequency, bandwidth_ghz, n_bins)
     else:
         center_bin = args.bin
 
-    times_h, temperatures_k = calculate_cold_temperatures(
-        pairs,
-        center_bin,
-        args.n_points,
-        args.noise_temperature,
-        args.thot,
+    times_h, temperatures_k = calculate_noise_temperatures(
+        pairs, center_bin, args.n_points, float(thot), float(tcold)
     )
 
-    output_path = args.output or directory / f"{directory.name}_cold_load_temperature_over_time.png"
+    output_path = args.output or directory / f"{directory.name}_noise_temperature_over_time.png"
     fig, ax = plt.subplots(figsize=(10, 5.5))
-    ax.plot(times_h, temperatures_k, "o-", color="tab:blue", markersize=4)
-    ax.set_xlabel("Time [h]")
-    ax.set_ylabel("Cold-load temperature [K]")
+    #ax.plot(times_h-22.3776, temperatures_k, "o-", color="tab:green", markersize=4)
+    ax.plot(times_h, temperatures_k, "o-", color="tab:green", markersize=4)
+    ax.set_xlabel("Time[h]")
+    ax.set_ylabel("Noise temperature [K]")
     ax.set_title(
-        f"Cold-load temperature at IF={args.if_frequency:g} MHz "
-        f"(bin {center_bin}, avg {args.n_points} pts) | "
-        f"T_noise={args.noise_temperature:g} K, T_hot={args.thot:g} K"
+        f"Noise temperature at IF={args.if_frequency:g} MHz (bin {center_bin}, "
+        f"avg {args.n_points} pts) | T_hot={thot:g} K, T_cold={tcold:g} K"
     )
     ax.grid(True, alpha=0.3)
     fig.tight_layout()

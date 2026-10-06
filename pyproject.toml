@@ -1,7 +1,7 @@
 [project]
-name = "balloon-mission"
+name = "balloon-analysis"
 version = "0.1.0"
-description = "Add your description here"
+description = "Anaysis tool for spectroscopy data"
 readme = "README.md"
 authors = [
     { name = "Lukas Jehna", email = "lukasjehna@gmail.com" }
@@ -13,7 +13,7 @@ dependencies = [
 ]
 
 [project.scripts]
-balloon-mission = "balloon_mission:main"
+balloon-analysis = "balloon_analysis:main"
 
 [build-system]
 requires = ["uv_build>=0.12.5,<0.13.0"]

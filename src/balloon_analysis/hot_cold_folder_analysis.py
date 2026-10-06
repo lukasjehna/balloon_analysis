@@ -1,25 +1,25 @@
 #!/usr/bin/env python3
 """Plot hot/cold analysis results from .spec files in a measurement directory."""
 
-from pathlib import Path
 import argparse
-from datetime import datetime
 import re
-from typing import Dict, List, Optional, Sequence, Tuple
+from collections.abc import Sequence
+from datetime import datetime
+from pathlib import Path
 
 import matplotlib.pyplot as plt
-from matplotlib.widgets import Button
 import numpy as np
+from matplotlib.widgets import Button
 
-import spec_analysis_utils as sau
+from . import spec_analysis_utils as sau
 
 _TIMESTAMPED_LOAD = re.compile(r"^(?P<timestamp>\d{14})(?P<load>hot|cold)(?:[^a-z].*)?$", re.IGNORECASE)
 
 
-def _timestamped_load_files(spec_files: Sequence[Path]) -> Tuple[List[Tuple[datetime, Path]], List[Tuple[datetime, Path]]]:
+def _timestamped_load_files(spec_files: Sequence[Path]) -> tuple[list[tuple[datetime, Path]], list[tuple[datetime, Path]]]:
     """Return valid, timestamp-sorted hot and cold files; report ignored candidates."""
-    hot: List[Tuple[datetime, Path]] = []
-    cold: List[Tuple[datetime, Path]] = []
+    hot: list[tuple[datetime, Path]] = []
+    cold: list[tuple[datetime, Path]] = []
     for path in spec_files:
         stem = path.stem
         is_hot = "hot" in stem.lower()
@@ -40,8 +40,8 @@ def _timestamped_load_files(spec_files: Sequence[Path]) -> Tuple[List[Tuple[date
 
 
 def _ordered_nearest_pairs(
-    hot: Sequence[Tuple[datetime, Path]], cold: Sequence[Tuple[datetime, Path]]
-) -> List[Tuple[Tuple[datetime, Path], Tuple[datetime, Path]]]:
+    hot: Sequence[tuple[datetime, Path]], cold: Sequence[tuple[datetime, Path]]
+) -> list[tuple[tuple[datetime, Path], tuple[datetime, Path]]]:
     """Minimum-total-separation monotonic matching of min(len(hot), len(cold)) pairs."""
     if not hot or not cold:
         return []
@@ -50,7 +50,7 @@ def _ordered_nearest_pairs(
     want = min(n, m)
     inf = float("inf")
     cost = np.full((n + 1, m + 1, want + 1), inf)
-    parent: Dict[Tuple[int, int, int], Tuple[int, int, int, str]] = {}
+    parent: dict[tuple[int, int, int], tuple[int, int, int, str]] = {}
     cost[0, 0, 0] = 0.0
     for i in range(n + 1):
         for j in range(m + 1):
@@ -80,10 +80,10 @@ def _ordered_nearest_pairs(
 
 
 def _load_pair_entries(
-    pairs: Sequence[Tuple[Tuple[datetime, Path], Tuple[datetime, Path]]],
-    header_meta: Dict[str, str],
-) -> List[Dict[str, object]]:
-    entries: List[Dict[str, object]] = []
+    pairs: Sequence[tuple[tuple[datetime, Path], tuple[datetime, Path]]],
+    header_meta: dict[str, str],
+) -> list[dict[str, object]]:
+    entries: list[dict[str, object]] = []
     for (hot_time, hot_path), (cold_time, cold_path) in pairs:
         try:
             hot_mean = sau.file_mean_spectrum(hot_path)
@@ -104,7 +104,7 @@ def _load_pair_entries(
     return entries
 
 
-def _launch_interactive_pairs(entries: Sequence[Dict[str, object]], header_meta: Dict[str, str], x_axis_mode: str, despike: bool) -> Optional[plt.Figure]:
+def _launch_interactive_pairs(entries: Sequence[dict[str, object]], header_meta: dict[str, str], x_axis_mode: str, despike: bool) -> plt.Figure | None:
     if not entries:
         print("No readable timestamp-matched hot/cold pairs available for interactive plotting.")
         return None
@@ -160,7 +160,7 @@ def _launch_interactive_pairs(entries: Sequence[Dict[str, object]], header_meta:
     return fig
 
 
-def main(argv: Optional[List[str]] = None) -> None:
+def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Hot/cold analysis with optional temperature overrides.")
     parser.add_argument("--t-hot", dest="t_hot", type=str, default="296", help="Override hot load temperature (default 296K).")
     parser.add_argument("--t-cold", dest="t_cold", type=str, default="77", help="Override cold load temperature (default 77K).")

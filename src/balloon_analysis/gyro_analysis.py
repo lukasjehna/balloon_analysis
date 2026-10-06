@@ -1,6 +1,7 @@
 # src/gyro_analysis.py
 from pathlib import Path
 
+
 def get_series_specs():
     return [
         # Gyro

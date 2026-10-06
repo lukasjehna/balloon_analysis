@@ -2,11 +2,11 @@
 from __future__ import annotations
 
 import csv
-from pathlib import Path
 import tkinter as tk
+from pathlib import Path
 from tkinter import filedialog, messagebox
 
-import spec_analysis_utils as sau
+from . import spec_analysis_utils as sau
 
 
 def select_folder(initialdir: Path | None = None) -> Path | None:

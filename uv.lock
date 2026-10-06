@@ -11,7 +11,7 @@ resolution-markers = [
 ]
 
 [[package]]
-name = "balloon-mission"
+name = "balloon-analysis"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [

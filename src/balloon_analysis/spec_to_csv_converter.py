@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-from pathlib import Path
 import csv
 import tkinter as tk
+from pathlib import Path
 from tkinter import filedialog, messagebox
 
 import numpy as np
 
-import spec_analysis_utils as sau
+from . import spec_analysis_utils as sau
 
 
 def select_spec_file(initialdir: Path | None = None) -> Path | None:
@@ -28,9 +28,9 @@ def spec_to_csv(spec_path: Path) -> Path:
     out_path = spec_path.with_suffix(".csv")
 
     x, xlabel = sau._build_x_axis(spectra.shape[1], meta, "frequency")
-    times_col = np.repeat(times, spectra.shape[0])
-    spectra_flat = spectra.reshape(-1)
-    x_col = np.tile(x, spectra.shape[0])
+    np.repeat(times, spectra.shape[0])
+    spectra.reshape(-1)
+    np.tile(x, spectra.shape[0])
 
     with out_path.open("w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)

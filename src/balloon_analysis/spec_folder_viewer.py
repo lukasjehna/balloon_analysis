@@ -12,6 +12,7 @@ import numpy as np
 from matplotlib.widgets import Button, TextBox
 
 from . import spec_analysis_utils as sau
+from .utility import io
 
 NUM_RE = re.compile(r"(\d+)")
 
@@ -68,7 +69,7 @@ class SpecViewer:
 
     def load_uncached(self, path_str: str):
         path = Path(path_str)
-        spectra_data = sau.load_spec_file(path)
+        spectra_data = io.load_spec_file(path)
         return spectra_data
 
     def load_current(self):

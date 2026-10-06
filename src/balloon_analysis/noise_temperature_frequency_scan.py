@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from . import spec_analysis_utils as sau
-
+from .utility import io
 
 def _extract_hot_cold_kelvin(header_meta: dict) -> tuple[float | None, float | None]:
     meta_lc = {k.lower(): v for k, v in header_meta.items()}
@@ -124,7 +124,7 @@ def main(argv: list[str] | None = None) -> None:
 
         header_meta = sau.parse_header_csv(meas_dir)
         # Also read inline metadata from the .spec file so bandwidth is available
-        _, _, spec_meta = sau.load_spec_file(spec_files[0])
+        _, _, spec_meta = io.load_spec_file(spec_files[0])
         header_meta = {**header_meta, **{k: str(v) for k, v in spec_meta.items() if v is not None}}
 
         meta_lc = {k.lower(): v for k, v in header_meta.items()}

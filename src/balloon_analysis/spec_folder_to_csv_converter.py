@@ -23,7 +23,7 @@ def select_folder(initialdir: Path | None = None) -> Path | None:
 
 
 def spec_to_csv(spec_path: Path, output_dir: Path) -> Path:
-    times, spectra, meta = sau.load_spec_file(spec_path)
+    times, spectra, meta = io.load_spec_file(spec_path)
     output_dir.mkdir(parents=True, exist_ok=True)
     out_path = output_dir / f"{spec_path.stem}.csv"
 

@@ -142,8 +142,8 @@ def calculate_noise_temperatures(
     )
 
     for pair in pairs:
-        hot_times, hot_spectra, _hot_meta = sau.load_spec_file(pair.hot.path)
-        cold_times, cold_spectra, _cold_meta = sau.load_spec_file(pair.cold.path)
+        hot_times, hot_spectra, _hot_meta = io.load_spec_file(pair.hot.path)
+        cold_times, cold_spectra, _cold_meta = io.load_spec_file(pair.cold.path)
 
         if hot_spectra.shape != cold_spectra.shape:
             raise ValueError(
@@ -238,7 +238,7 @@ def main() -> None:
     if thot is None or tcold is None:
         parser.error("Hot/cold temperatures are missing. Supply --thot and --tcold.")
 
-    _, first_spectrum, first_meta = sau.load_spec_file(pairs[0].hot.path)
+    _, first_spectrum, first_meta = io.load_spec_file(pairs[0].hot.path)
     n_bins = first_spectrum.shape[1]
     bandwidth_ghz = sau._get_bw_ghz(header)
     if bandwidth_ghz is None:

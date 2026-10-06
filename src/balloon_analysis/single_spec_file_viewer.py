@@ -12,7 +12,7 @@ import numpy as np
 from matplotlib.widgets import Button, Slider
 
 from . import spec_analysis_utils as sau
-
+from .utility import io
 
 def select_spec_file(initialdir: Path | None = None) -> Path | None:
     root = tk.Tk()
@@ -31,7 +31,7 @@ class SpecFileViewer:
     def __init__(self, spec_path: Path, x_axis_mode: str = "frequency"):
         self.spec_path = spec_path
         self.x_axis_mode = x_axis_mode
-        self.times, self.spectra, self.meta = sau.load_spec_file(spec_path)
+        self.times, self.spectra, self.meta = io.load_spec_file(spec_path)
 
         self.n_spectra, self.n_bins = self.spectra.shape
         self.x, self.xlabel = sau.build_x_axis(self.n_bins, self.meta, self.x_axis_mode)

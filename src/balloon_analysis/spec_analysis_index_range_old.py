@@ -11,13 +11,8 @@ from matplotlib.widgets import Cursor
 from typing import Optional, List, Dict, Tuple
 from src.analysis_core import choose_file  # reuse GUI file picker
 
-def _parse_header_line(header: str) -> Dict[str, str]:
-    """
-    Parse a header of the form:
-    "number of spectra: N, integration time: Xms, bandwidth: Y"
-    into a dict with lowercase keys.
-    """
-    meta: Dict[str, str] = {}
+def _parse_header_line(header: str) -> dict[str, str]:
+    meta: dict[str, str] = {}
     parts = [p.strip() for p in header.split(",") if p.strip()]
     for part in parts:
         if ":" in part:

@@ -30,6 +30,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from . import spec_analysis_utils as sau
+from .utility import io
 
 TIMESTAMP_RE = re.compile(r"^(\d{14})")
 LOAD_RE = re.compile(r"(hot|cold)$", re.IGNORECASE)
@@ -239,7 +240,7 @@ def main() -> None:
 
     header = sau.parse_header_csv(directory)
     first_hot = pairs[0].hot.path
-    _, first_spectrum, first_meta = sau.load_spec_file(first_hot)
+    _, first_spectrum, first_meta = io.load_spec_file(first_hot)
     n_bins = first_spectrum.shape[1]
     bandwidth_ghz = sau._get_bw_ghz(header)
     if bandwidth_ghz is None:

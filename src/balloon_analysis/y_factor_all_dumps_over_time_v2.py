@@ -154,8 +154,8 @@ def calculate_y_factors_per_spectrum(
     # Determine the global first timestamp across all spectra
     first_timestamp = None
     for pair in pairs:
-        _, hot_spectra, _ = sau.load_spec_file(pair.hot.path)
-        _, cold_spectra, _ = sau.load_spec_file(pair.cold.path)
+        _, hot_spectra, _ = io.load_spec_file(pair.hot.path)
+        _, cold_spectra, _ = io.load_spec_file(pair.cold.path)
         n_hot = hot_spectra.shape[0]
         n_cold = cold_spectra.shape[0]
         n_used = min(n_hot, n_cold)
@@ -174,8 +174,8 @@ def calculate_y_factors_per_spectrum(
 
     global_idx = 0
     for pair in pairs:
-        _, hot_spectra, _ = sau.load_spec_file(pair.hot.path)
-        _, cold_spectra, _ = sau.load_spec_file(pair.cold.path)
+        _, hot_spectra, _ = io.load_spec_file(pair.hot.path)
+        _, cold_spectra, _ = io.load_spec_file(pair.cold.path)
         n_hot = hot_spectra.shape[0]
         n_cold = cold_spectra.shape[0]
         n_used = min(n_hot, n_cold)
@@ -242,7 +242,7 @@ def main() -> None:
 
     header = sau.parse_header_csv(directory)
     first_hot = pairs[0].hot.path
-    _, first_spectrum, first_meta = sau.load_spec_file(first_hot)
+    _, first_spectrum, first_meta = io.load_spec_file(first_hot)
     n_bins = first_spectrum.shape[1]
     bandwidth_ghz = sau._get_bw_ghz(header)
     if bandwidth_ghz is None:

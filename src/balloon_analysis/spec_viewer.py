@@ -33,6 +33,7 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import Button, TextBox
 
 from . import spec_analysis_utils as sau
+from .utility import io
 
 _NUM_RE = re.compile(r"(\d+)")
 
@@ -79,7 +80,7 @@ class SpecViewer:
     # ---- data loading -------------------------------------------------
     def _load_mean_uncached(self, path_str: str):
         path = Path(path_str)
-        _, spectra, meta = sau.load_spec_file(path)
+        _, spectra, meta = io.load_spec_file(path)
         mean_spec = (spectra.astype(float) ** 2).mean(axis=0)
         return mean_spec, meta
 

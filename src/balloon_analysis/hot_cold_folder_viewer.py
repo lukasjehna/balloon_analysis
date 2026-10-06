@@ -28,6 +28,7 @@ import numpy as np
 from matplotlib.widgets import Button, RadioButtons, TextBox
 
 from . import spec_analysis_utils as sau
+from .utility import io
 
 STAMP_RE = re.compile(r"^(\d{14})")
 LOAD_RE = re.compile(r"(hot|cold)$", re.IGNORECASE)

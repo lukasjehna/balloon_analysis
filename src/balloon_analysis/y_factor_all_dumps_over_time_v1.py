@@ -148,8 +148,8 @@ def calculate_y_factors_all_dumps(
     )
 
     for pair in pairs:
-        _, hot_spectra, _ = sau.load_spec_file(pair.hot.path)
-        _, cold_spectra, _ = sau.load_spec_file(pair.cold.path)
+        _, hot_spectra, _ = io.load_spec_file(pair.hot.path)
+        _, cold_spectra, _ = io.load_spec_file(pair.cold.path)
 
         if hot_spectra.shape != cold_spectra.shape:
             raise ValueError(
@@ -217,7 +217,7 @@ def main() -> None:
 
     header = sau.parse_header_csv(directory)
     first_hot = pairs[0].hot.path
-    _, first_spectrum, first_meta = sau.load_spec_file(first_hot)
+    _, first_spectrum, first_meta = io.load_spec_file(first_hot)
     n_bins = first_spectrum.shape[1]
     bandwidth_ghz = sau._get_bw_ghz(header)
     if bandwidth_ghz is None:

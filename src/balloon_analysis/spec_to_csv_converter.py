@@ -9,7 +9,7 @@ from tkinter import filedialog, messagebox
 import numpy as np
 
 from . import spec_analysis_utils as sau
-
+from .utility import io
 
 def select_spec_file(initialdir: Path | None = None) -> Path | None:
     root = tk.Tk()
@@ -24,7 +24,7 @@ def select_spec_file(initialdir: Path | None = None) -> Path | None:
 
 
 def spec_to_csv(spec_path: Path) -> Path:
-    times, spectra, meta = sau.load_spec_file(spec_path)
+    times, spectra, meta = io.load_spec_file(spec_path)
     out_path = spec_path.with_suffix(".csv")
 
     x, xlabel = sau._build_x_axis(spectra.shape[1], meta, "frequency")

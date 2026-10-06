@@ -38,6 +38,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from . import spec_analysis_utils as sau
+from .utility import io
 
 TIMESTAMP_RE = re.compile(r"^(\d{14})")
 LOAD_RE = re.compile(r"(hot|cold)$", re.IGNORECASE)
@@ -230,8 +231,8 @@ def calculate_y_factors_per_spectrum(
 
         # Load spectra using existing helper (returns squared-mean spectrum)
         # Here we need all individual spectra, so load the raw file again.
-        _, hot_spectra, _ = sau.load_spec_file(pair.hot.path)
-        _, cold_spectra, _ = sau.load_spec_file(pair.cold.path)
+        _, hot_spectra, _ = io.load_spec_file(pair.hot.path)
+        _, cold_spectra, _ = io.load_spec_file(pair.cold.path)
         n_hot = hot_spectra.shape[0]
         n_cold = cold_spectra.shape[0]
         n_used = min(n_hot, n_cold, len(ts_hot), len(ts_cold))
@@ -295,7 +296,7 @@ def main() -> None:
 
     header = sau.parse_header_csv(directory)
     first_hot = pairs[0].hot.path
-    _, first_spectrum, first_meta = sau.load_spec_file(first_hot)
+    _, first_spectrum, first_meta = io.load_spec_file(first_hot)
     n_bins = first_spectrum.shape[1]
     bandwidth_ghz = sau._get_bw_ghz(header)
     if bandwidth_ghz is None:

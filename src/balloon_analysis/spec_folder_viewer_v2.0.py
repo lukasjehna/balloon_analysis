@@ -70,7 +70,7 @@ class SpecViewer:
 
     def load_uncached(self, path_str: str):
         path = Path(path_str)
-        spectra_data = sau.load_spec_file(path)
+        spectra_data = io.load_spec_file(path)
         return spectra_data
 
     def load_current(self):

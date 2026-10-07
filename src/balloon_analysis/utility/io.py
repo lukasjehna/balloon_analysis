@@ -12,42 +12,6 @@ from balloon_analysis.utility import plot
 
 #%%
 
-# only used by old versions
-def parse_header_line(header: str) -> dict[str, str]:
-    meta: dict[str, str] = {}
-    parts = [p.strip() for p in header.split(",") if p.strip()]
-    for part in parts:
-        if ":" in part:
-            key, val = part.split(":", 1)
-            meta[key.strip().lower()] = val.strip()
-    return meta
-
-# only used by old versions
-def _find_dedicated_header_file(spec_path: Path) -> Path | None:
-    stem = spec_path.stem
-    run_stem = stem
-    for suffix in ("_hot", "_cold", "_sky", "_amb"):
-        if run_stem.endswith(suffix):
-            run_stem = run_stem[: -len(suffix)]
-            break
-
-    candidates: list[Path] = []
-    preferred = spec_path.parent / f"{run_stem}_pi_lab_header.csv"
-    if preferred.exists():
-        candidates.append(preferred)
-
-    candidates.extend(sorted(spec_path.parent.glob(f"{run_stem}*header*.csv")))
-    candidates.extend(sorted(spec_path.parent.glob("*header*.csv")))
-
-    seen = set()
-    for p in candidates:
-        rp = p.resolve()
-        if rp not in seen and p.is_file():
-            seen.add(rp)
-            return p
-    return None
-
-
 def _parse_dedicated_header_csv(header_csv: Path) -> dict[str, str]:
     raw: dict[str, str] = {}
     with header_csv.open("r", newline="", encoding="utf-8", errors="replace") as f:

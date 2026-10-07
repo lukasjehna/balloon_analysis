@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.widgets import Button, TextBox
 
-from . import spec_analysis_utils as sau
+from balloon_analysis.utility import spec_analysis_utils as sau
 
 STAMP_RE = re.compile(r"^(\d{14})")
 LOAD_RE = re.compile(r"(hot|cold)$", re.IGNORECASE)
@@ -179,7 +179,7 @@ class ColdLoadTemperatureViewer:
                 self.ax.set_xlim(float(x[0]), float(x[-1]))
             self.ax.relim()
             self.ax.autoscale_view(scalex=False, scaley=True)
-            sau._apply_x_axis_format(self.ax, self.header_meta, self.x_axis, xlabel)
+            sau.apply_x_axis_format(self.ax, self.header_meta, self.x_axis, xlabel)
 
             finite = tcold[np.isfinite(tcold)]
             median = np.median(finite) if finite.size else float("nan")
@@ -221,7 +221,7 @@ def main():
     args = parser.parse_args()
 
     directory = (
-        sau.choose_directory(Path.cwd())
+        sau.io.select_folder(Path.cwd())
         if args.directory is None
         else Path(args.directory).expanduser().resolve()
     )

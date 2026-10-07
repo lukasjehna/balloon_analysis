@@ -5,17 +5,15 @@ This variant can:
 - Average over a user-defined number of hot/cold pairs before computing spectra.
 - Bin the x-axis by averaging over n adjacent spectral bins.
 
-Examples
---------
-uv run python -m src.balloon_analysis.hot_cold_folder_viewer --thot 300 --tcold 5 --pairs-per-average 50 --spectral-bin-size 3
 
 Files are recognised case-insensitively when their stem ends in ``hot`` or
 ``cold``. Each hot file is paired with the closest unused cold file in time;
 the timestamp must occur at the beginning of the filename as YYYYMMDDHHMMSS,
 e.g. 20260713160551hot.spec and 20260713160605cold.spec.
 """
+#%%
 from __future__ import annotations
-
+import sys
 import argparse
 import re
 from dataclasses import dataclass
@@ -27,9 +25,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.widgets import Button, RadioButtons, TextBox
 
-from . import spec_analysis_utils as sau
-from .utility import io
+from balloon_analysis.utility import browser, io, plot
+from balloon_analysis.utility import conversion as conv
 
+#%%
 STAMP_RE = re.compile(r"^(\d{14})")
 LOAD_RE = re.compile(r"(hot|cold)$", re.IGNORECASE)
 
@@ -123,11 +122,11 @@ class SpecViewer:
         self.draw()
 
     def _load_uncached(self, hot_name, cold_name):
-        hot = sau.file_mean_spectrum(Path(hot_name))
-        cold = sau.file_mean_spectrum(Path(cold_name))
+        hot = conv.file_mean_spectrum(Path(hot_name))
+        cold = conv.file_mean_spectrum(Path(cold_name))
         if hot.size != cold.size:
             raise ValueError(f"Bin-count mismatch: hot={hot.size}, cold={cold.size}")
-        tnoise = sau.compute_noise_temperature(hot, cold, self.thot, self.tcold)
+        tnoise = conv.compute_noise_temperature(hot, cold, self.thot, self.tcold)
         return hot, cold, tnoise
 
     def _set_hot_offset(self, text):
@@ -319,7 +318,7 @@ class SpecViewer:
                 cold_arr = bin_spectrum_1d(cold_arr, self.spectral_bin_size)
                 tnoise = bin_spectrum_1d(tnoise, self.spectral_bin_size)
 
-            x, xlabel = sau.build_x_axis(
+            x, xlabel = plot.build_x_axis(
                 hot_arr.size,
                 self.header_meta,
                 self.x_axis,
@@ -331,7 +330,7 @@ class SpecViewer:
                 top_ylabel = "Noise temperature [K]"
 
             elif self.display_mode == "brightness_temperature":
-                top_data = sau.compute_brightness_temperature(
+                top_data = conv.compute_brightness_temperature(
                     avg_sig=cold_arr,
                     avg_cold=hot_arr*cold_arr[i_offset]/hot_arr[i_offset],
                     avg_hot=hot_arr,
@@ -341,7 +340,7 @@ class SpecViewer:
                 top_ylabel = "Brightness temperature [K]"
 
             elif self.display_mode == "normalized_spectrum":
-                top_data = sau.compute_normalized_spectrum(
+                top_data = conv.compute_normalized_spectrum(
                     avg_sig=cold_arr,
                     avg_cold=hot_arr*cold_arr[i_offset]/hot_arr[i_offset],
                     avg_hot=hot_arr,
@@ -369,7 +368,7 @@ class SpecViewer:
             # (rest of your axis limit / formatting code here)
             # ...
 
-            sau._apply_x_axis_format(
+            plot.apply_x_axis_format(
                 self.ax_diff,
                 self.header_meta,
                 self.x_axis,
@@ -395,7 +394,7 @@ class SpecViewer:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Browse Y-factor noise temperatures from hot/cold .spec pairs. Run with: uv run python -m src.balloon_analysis.hot_cold_folder_viewer --thot 300 --tcold 5 --pairs-per-average 50 --spectral-bin-size 3")
+    parser = argparse.ArgumentParser(description="Browse Y-factor noise temperatures from hot/cold .spec pairs. Run with:  uv run src/balloon_analysis/hot_cold_folder_viewer.py --thot 300 --tcold 5 --pairs-per-average 50 --spectral-bin-size 3")
     parser.add_argument("directory", nargs="?", help="Measurement folder; omit to choose it graphically.")
     parser.add_argument("--thot", type=float, default=300, help="Hot-load temperature in K (default: 320).")
     parser.add_argument("--tcold", type=float, default=77, help="Cold-load temperature in K (default: 230).")
@@ -404,10 +403,13 @@ def main():
     parser.add_argument("--recursive", action="store_true", help="Search subdirectories too.")
     parser.add_argument("--pairs-per-average", type=int, default=1, help="Average over this many consecutive hot/cold pairs before plotting (default: 1).")
     parser.add_argument("--spectral-bin-size", type=int, default=1, help="Average over this many adjacent spectral bins on the x-axis (default: 1, no binning).")
-    args = parser.parse_args()
+    if any("ipykernel" in arg for arg in sys.argv):
+        args, _ = parser.parse_known_args()
+    else:
+        args = parser.parse_args()
 
     default_folder = Path("/mnt/c/DLR/Data")
-    directory = sau.choose_directory(default_folder) if args.directory is None else Path(args.directory).expanduser().resolve()
+    directory = browser.select_folder(default_folder) if args.directory is None else Path(args.directory).expanduser().resolve()
     if directory is None:
         return
     if not directory.is_dir():
@@ -423,9 +425,12 @@ def main():
     if args.spectral_bin_size > 1:
         print(f"x-bin -axis over {args.spectral_bin_size} spectral bins.")
 
-    SpecViewer(pairs, sau.parse_header_csv(directory), args.thot, args.tcold, args.x_axis, 4096, args.pairs_per_average, args.spectral_bin_size, args.goto)
+    SpecViewer(pairs, io.parse_header_csv(directory), args.thot, args.tcold, args.x_axis, 4096, args.pairs_per_average, args.spectral_bin_size, args.goto)
     plt.show()
 
 
 if __name__ == "__main__":
     main()
+
+
+# %%

@@ -295,12 +295,12 @@ def _get_header_value(header_meta: Dict[str, str], *keys: str) -> Optional[str]:
     return None
 
 
-def _get_lo_ghz(header_meta: Dict[str, str]) -> Optional[float]:
+def get_lo_ghz(header_meta: Dict[str, str]) -> Optional[float]:
     raw = _get_header_value(header_meta, "f_LO", "f_RX")
     return _parse_frequency_ghz(raw)
 
 
-def _get_bw_ghz(header_meta: Dict[str, str]) -> Optional[float]:
+def get_bw_ghz(header_meta: Dict[str, str]) -> Optional[float]:
     raw = _get_header_value(header_meta, "BW", "bandwidth")
     return _parse_frequency_ghz(raw)
 
@@ -309,7 +309,7 @@ def _build_x_axis(n_bins: int, header_meta: Dict[str, str], x_axis_mode: str) ->
     if x_axis_mode == "bins":
         return np.arange(n_bins), "Bin index"
 
-    bw_ghz = _get_bw_ghz(header_meta)
+    bw_ghz = get_bw_ghz(header_meta)
     if bw_ghz is None or bw_ghz <= 0:
         return np.arange(n_bins), "Bin index"
 
@@ -317,7 +317,7 @@ def _build_x_axis(n_bins: int, header_meta: Dict[str, str], x_axis_mode: str) ->
     return x_if, "f_IF [GHz]"
 
 
-def _apply_x_axis_format(
+def apply_x_axis_format(
     ax: plt.Axes,
     header_meta: Dict[str, str],
     x_axis_mode: str,
@@ -327,7 +327,7 @@ def _apply_x_axis_format(
         ax.set_xlabel("Bin index")
         return
 
-    f_lo_ghz = _get_lo_ghz(header_meta)
+    f_lo_ghz = get_lo_ghz(header_meta)
     if x_axis_mode == "frequency":
         ax.set_xlabel("f_IF [GHz]" if f_lo_ghz is None else f"f_IF [GHz] (f_LO={f_lo_ghz:.6f} GHz)")
         return
@@ -395,7 +395,7 @@ def plot_hot_cold_average(
     fig, ax = plt.subplots(figsize=(10, 5))
     ax.plot(x, avg_hot, label=f"hot (N={n_hot})", color="tab:red")
     ax.plot(x, avg_cold, label=f"cold (N={n_cold})", color="tab:blue")
-    _apply_x_axis_format(ax, header_meta, x_axis_mode, x_label)
+    apply_x_axis_format(ax, header_meta, x_axis_mode, x_label)
     ax.set_ylabel("Counts [arb.]")
     ax.grid(True, alpha=0.3)
 
@@ -454,7 +454,7 @@ def plot_all_hot_cold_lines(
             )
             total_cold_spectra += 1
 
-    _apply_x_axis_format(ax, header_meta, x_axis_mode, x_label)
+    apply_x_axis_format(ax, header_meta, x_axis_mode, x_label)
     ax.set_ylabel("Counts [arb.]")
     ax.grid(True, alpha=0.3)
 
@@ -474,7 +474,7 @@ def plot_all_hot_cold_lines(
     return out_path
 
 
-def _resolve_measurement_dir_with_specs(meas_dir: Path) -> Path:
+def resolve_measurement_dir_with_specs(meas_dir: Path) -> Path:
     if any(meas_dir.glob("*.spec")):
         return meas_dir
     subdirs = [d for d in meas_dir.iterdir() if d.is_dir()]
@@ -505,7 +505,7 @@ def _parse_temperature_value(raw: Optional[str]) -> Optional[float]:
     return value + 273.15 if is_celsius else value
 
 
-def _extract_hot_cold_kelvin(header_meta: Dict[str, str]) -> Tuple[Optional[float], Optional[float]]:
+def extract_hot_cold_kelvin(header_meta: Dict[str, str]) -> Tuple[Optional[float], Optional[float]]:
     meta_lc = {k.lower(): v for k, v in header_meta.items()}
     t_hot_raw = meta_lc.get("t_hot") or meta_lc.get("thot")
     t_cold_raw = meta_lc.get("t_cold") or meta_lc.get("tcold")
@@ -521,7 +521,7 @@ def plot_noise_temperature(
     y_min: float = 0.0,
     y_max: float = 30000.0,
 ) -> Optional[Path]:
-    t_hot_k, t_cold_k = _extract_hot_cold_kelvin(header_meta)
+    t_hot_k, t_cold_k = extract_hot_cold_kelvin(header_meta)
     if t_hot_k is None or t_cold_k is None:
         print("Skipping noise-temperature plot: missing t_hot/t_cold in header.")
         return None
@@ -535,7 +535,7 @@ def plot_noise_temperature(
     fig, ax = plt.subplots(figsize=(10, 5))
     x, x_label = _build_x_axis(t_noise.size, header_meta, x_axis_mode)
     ax.plot(x, t_noise, color="tab:green", linewidth=1.0)
-    _apply_x_axis_format(ax, header_meta, x_axis_mode, x_label)
+    apply_x_axis_format(ax, header_meta, x_axis_mode, x_label)
     ax.set_ylabel("Noise temperature [K]")
     ax.set_ylim(y_min, y_max)
     ax.grid(True, alpha=0.3)
@@ -690,7 +690,7 @@ def launch_interactive_noise_temperature_browser(
         t_cold_k = e.get("t_cold_k")
         if (t_hot_k is None or t_cold_k is None) and isinstance(e.get("header_meta"), dict):
             h = e["header_meta"]
-            t_hot_k, t_cold_k = _extract_hot_cold_kelvin(h)
+            t_hot_k, t_cold_k = extract_hot_cold_kelvin(h)
 
         if t_hot_k is None or t_cold_k is None:
             return np.full_like(hot, np.nan, dtype=float), removed

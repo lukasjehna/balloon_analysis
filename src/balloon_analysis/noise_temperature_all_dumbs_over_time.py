@@ -19,7 +19,7 @@ from tkinter import filedialog
 import matplotlib.pyplot as plt
 import numpy as np
 
-from . import spec_analysis_utils as sau
+from balloon_analysis.utility import spec_analysis_utils as sau
 
 TIMESTAMP_RE = re.compile(r"^(\d{14})")
 LOAD_RE = re.compile(r"(hot|cold)$", re.IGNORECASE)
@@ -232,7 +232,7 @@ def main() -> None:
         parser.error("No timestamped hot/cold pairs found within the requested tolerance.")
 
     header = sau.parse_header_csv(directory)
-    hot_from_header, cold_from_header = sau._extract_hot_cold_kelvin(header)
+    hot_from_header, cold_from_header = sau.extract_hot_cold_kelvin(header)
     thot = args.thot if args.thot is not None else hot_from_header
     tcold = args.tcold if args.tcold is not None else cold_from_header
     if thot is None or tcold is None:
@@ -240,7 +240,7 @@ def main() -> None:
 
     _, first_spectrum, first_meta = io.load_spec_file(pairs[0].hot.path)
     n_bins = first_spectrum.shape[1]
-    bandwidth_ghz = sau._get_bw_ghz(header)
+    bandwidth_ghz = sau.get_bw_ghz(header)
     if bandwidth_ghz is None:
         bandwidth_ghz = sau._parse_frequency_ghz(first_meta.get("bandwidth"))
 

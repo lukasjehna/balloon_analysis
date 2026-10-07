@@ -13,7 +13,7 @@ import numpy as np
 from matplotlib.widgets import Button, TextBox
 
 import spec_analysis_utils as sau
-from .utility import io
+from balloon_analysis.utility import io
 
 NUM_RE = re.compile(r"(\d+)")
 

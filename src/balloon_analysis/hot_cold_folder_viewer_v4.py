@@ -170,7 +170,7 @@ class NoiseTemperatureViewer:
                 if self.y3min is not None and self.y3max is not None:
                     self.ax_diff.set_ylim(self.y3min, self.y3max)
 
-            sau._apply_x_axis_format(self.ax_diff, self.header_meta, self.x_axis, xlabel)
+            sau.apply_x_axis_format(self.ax_diff, self.header_meta, self.x_axis, xlabel)
             self.ax_nt.set_title(
                 f"[{self.index + 1}/{len(self.pairs)}] hot: {hot.name} | cold: {cold.name}\n"
                 f"Δt={separation:.1f} s | T_hot={self.thot:.2f} K | T_cold={self.tcold:.2f} K"

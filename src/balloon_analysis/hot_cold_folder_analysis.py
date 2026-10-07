@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.widgets import Button
 
-from . import spec_analysis_utils as sau
+from balloon_analysis.utility import spec_analysis_utils as sau
 
 _TIMESTAMPED_LOAD = re.compile(r"^(?P<timestamp>\d{14})(?P<load>hot|cold)(?:[^a-z].*)?$", re.IGNORECASE)
 
@@ -108,7 +108,7 @@ def _launch_interactive_pairs(entries: Sequence[dict[str, object]], header_meta:
     if not entries:
         print("No readable timestamp-matched hot/cold pairs available for interactive plotting.")
         return None
-    t_hot, t_cold = sau._extract_hot_cold_kelvin(header_meta)
+    t_hot, t_cold = sau.extract_hot_cold_kelvin(header_meta)
     if t_hot is None or t_cold is None:
         print("Interactive pairs need valid t_hot and t_cold values.")
         return None
@@ -139,7 +139,7 @@ def _launch_interactive_pairs(entries: Sequence[dict[str, object]], header_meta:
             ax_spec.set_xlim(0, 1)
         for axis in (ax_spec, ax_noise):
             axis.relim(); axis.autoscale_view(scalex=False, scaley=True)
-            sau._apply_x_axis_format(axis, header_meta, x_axis_mode, label)
+            sau.apply_x_axis_format(axis, header_meta, x_axis_mode, label)
         i0, i1 = 200, min(1851, noise.size)
         mean = float(np.nanmean(noise[i0:i1])) if i1 > i0 and np.any(np.isfinite(noise[i0:i1])) else float("nan")
         ax_spec.set_title(f"Pair {state['index'] + 1}/{len(entries)}: {entry['hot_path'].name}  |  {entry['cold_path'].name}")
@@ -175,10 +175,10 @@ def main(argv: list[str] | None = None) -> None:
 
     project_root = Path(__file__).resolve().parents[2]
     default_data_dir = project_root / "data"
-    meas_dir = sau.choose_directory(default_data_dir if default_data_dir.is_dir() else project_root)
+    meas_dir = io.select_folder(default_data_dir if default_data_dir.is_dir() else project_root)
     if meas_dir is None or not meas_dir.is_dir():
         print("No valid measurement directory selected. Exiting."); return
-    meas_dir = sau._resolve_measurement_dir_with_specs(meas_dir)
+    meas_dir = sau.resolve_measurement_dir_with_specs(meas_dir)
     spec_files = sorted(meas_dir.glob("*.spec"))
     if not spec_files:
         print(f"No .spec files found in {meas_dir}"); return

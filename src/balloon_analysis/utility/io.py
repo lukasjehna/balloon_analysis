@@ -1,6 +1,17 @@
 #!/usr/bin/env python3
 # .spec and header CSV parsing
 
+#%%
+import csv
+import re
+from pathlib import Path
+
+import numpy as np
+
+from balloon_analysis.utility import plot
+
+#%%
+
 # only used by old versions
 def parse_header_line(header: str) -> dict[str, str]:
     meta: dict[str, str] = {}
@@ -75,7 +86,7 @@ def load_spec_file(spec_path: Path):
     nl = file_bytes.find(b"\n")
     if nl >= 0:
         first_line = file_bytes[:nl].decode("ascii", errors="replace").strip()
-        parsed = io.parse_header_line(first_line)
+        parsed = parse_header_line(first_line)
         if "number of spectra" in parsed:
             header_line = first_line
             meta_raw = parsed
@@ -153,18 +164,6 @@ def load_spec_file(spec_path: Path):
     }
     return times, spectra, meta
 
-
-def choose_directory(initialdir: Path) -> Path | None:
-    root = tk.Tk()
-    root.withdraw()
-    path = filedialog.askdirectory(
-        title="Select measurement folder (contains .spec + *_header.csv)",
-        initialdir=str(initialdir),
-    )
-    root.destroy()
-    return Path(path) if path else None
-
-
 def parse_header_csv(meas_dir: Path) -> dict[str, str]:
     header_files = sorted(meas_dir.glob("*_header.csv"))
     if not header_files:
@@ -201,7 +200,7 @@ def parse_header_csv(meas_dir: Path) -> dict[str, str]:
     return meta
 
 
-def _parse_frequency_ghz(raw: str | None) -> float | None:
+def parse_frequency_ghz(raw: str | None) -> float | None:
     if raw is None:
         return None
     s = raw.strip().replace(" ", "").replace(",", ".")
@@ -226,3 +225,84 @@ def _parse_frequency_ghz(raw: str | None) -> float | None:
     if "hz" in lower:
         return value / 1e9
     return value
+
+
+def parse_temperature_value(raw: str | None) -> float | None:
+    if raw is None:
+        return None
+    s = raw.strip().replace(",", ".")
+    if not s:
+        return None
+
+    lower = s.lower()
+    is_celsius = ("c" in lower) and ("k" not in lower)
+    num = "".join(ch for ch in s if ch.isdigit() or ch in ".-+eE")
+    if not num:
+        return None
+    try:
+        value = float(num)
+    except ValueError:
+        return None
+    return value + 273.15 if is_celsius else value
+
+
+
+def _get_header_value(header_meta: dict[str, str], *keys: str) -> str | None:
+    meta_lc = {k.lower(): v for k, v in header_meta.items()}
+    for k in keys:
+        v = meta_lc.get(k.lower())
+        if v is not None:
+            return v
+    return None
+
+
+def get_lo_ghz(header_meta: dict[str, str]) -> float | None:
+    raw = _get_header_value(header_meta, "f_LO", "f_RX")
+    return parse_frequency_ghz(raw)
+
+
+def get_bw_ghz(header_meta: dict[str, str]) -> float | None:
+    raw = _get_header_value(header_meta, "BW", "bandwidth")
+    return parse_frequency_ghz(raw)
+
+
+def extract_hot_cold_kelvin(header_meta: dict[str, str]) -> tuple[float | None, float | None]:
+    meta_lc = {k.lower(): v for k, v in header_meta.items()}
+    t_hot_raw = meta_lc.get("t_hot") or meta_lc.get("thot")
+    t_cold_raw = meta_lc.get("t_cold") or meta_lc.get("tcold")
+    return parse_temperature_value(t_hot_raw), parse_temperature_value(t_cold_raw)
+
+
+
+def save_hot_cold_average_csv(
+    meas_dir: Path,
+    avg_hot: np.ndarray,
+    avg_cold: np.ndarray,
+    header_meta: dict[str, str],
+) -> Path:
+    if avg_hot.size != avg_cold.size:
+        raise ValueError("avg_hot and avg_cold must have the same length.")
+
+    x_freq, _ = plot.build_x_axis(avg_hot.size, header_meta, x_axis_mode="frequency")
+    out_path = meas_dir / f"{meas_dir.name}_hot_cold_avg.csv"
+
+    with out_path.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow(["frequency_ghz", "cold_load", "hot_load"])
+        for freq, cold_val, hot_val in zip(x_freq, avg_cold, avg_hot):
+            writer.writerow(
+                [f"{float(freq):.9f}", f"{float(cold_val):.9f}", f"{float(hot_val):.9f}"]
+            )
+
+    return out_path
+
+
+
+def print_header_meta(header_meta: dict[str, str]) -> None:
+    if not header_meta:
+        print("Header metadata: <none found>")
+        return
+    print("Header metadata:")
+    for k in sorted(header_meta.keys()):
+        print(f"  {k}={header_meta[k]}")
+# %%

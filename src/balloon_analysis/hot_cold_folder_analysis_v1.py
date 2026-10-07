@@ -77,13 +77,13 @@ def main(argv: Optional[List[str]] = None) -> None:
     default_data_dir = project_root / "data"
     if not default_data_dir.is_dir():
         default_data_dir = project_root
-    meas_dir = spectrometer_analysis_utils.choose_directory(default_data_dir)
+    meas_dir = spectrometer_analysis_utils.io.select_folder(default_data_dir)
 
     if meas_dir is None or not meas_dir.is_dir():
         print("No valid measurement directory selected. Exiting.")
         return
 
-    meas_dir = spectrometer_analysis_utils._resolve_measurement_dir_with_specs(meas_dir)
+    meas_dir = spectrometer_analysis_utils.resolve_measurement_dir_with_specs(meas_dir)
     spec_files = sorted(meas_dir.glob("*.spec"))
     if not spec_files:
         print("No .spec files found in {}".format(meas_dir))

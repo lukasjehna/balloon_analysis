@@ -15,10 +15,10 @@ from tkinter import filedialog
 import matplotlib.pyplot as plt
 import numpy as np
 
-from . import spec_analysis_utils as sau
-from .utility import io
+from balloon_analysis.utility import spec_analysis_utils as sau
+from balloon_analysis.utility import io, conv
 
-def _extract_hot_cold_kelvin(header_meta: dict) -> tuple[float | None, float | None]:
+def extract_hot_cold_kelvin(header_meta: dict) -> tuple[float | None, float | None]:
     meta_lc = {k.lower(): v for k, v in header_meta.items()}
     t_hot_raw = meta_lc.get("t_hot") or meta_lc.get("thot")
     t_cold_raw = meta_lc.get("t_cold") or meta_lc.get("tcold")
@@ -43,7 +43,7 @@ def _discover_measurement_dirs(main_dir: Path) -> list[Path]:
     candidates = [main_dir] + sorted([p for p in main_dir.iterdir() if p.is_dir()])
 
     for candidate in candidates:
-        meas_dir = sau._resolve_measurement_dir_with_specs(candidate)
+        meas_dir = sau.resolve_measurement_dir_with_specs(candidate)
         key = str(meas_dir.resolve())
         if key in seen:
             continue
@@ -138,15 +138,15 @@ def main(argv: list[str] | None = None) -> None:
         if args.t_cold is not None:
             header_meta["t_cold"] = args.t_cold
 
-        t_hot_k, t_cold_k = _extract_hot_cold_kelvin(header_meta)
+        t_hot_k, t_cold_k = extract_hot_cold_kelvin(header_meta)
         if t_hot_k is None or t_cold_k is None:
             print(f"Skipping (missing t_hot/t_cold): {meas_dir}")
             continue
 
         # Compute bin window for this measurement if not explicitly provided
         if args.bin_start is None or args.bin_stop is None:
-            bw_ghz = sau._get_bw_ghz(header_meta)
-            bin_start, bin_stop = sau._compute_bin_window_from_center_freq(
+            bw_ghz = sau.get_bw_ghz(header_meta)
+            bin_start, bin_stop = io.compute_bin_window_from_center_freq(
                 center_freq_ghz=args.center_freq,
                 f_rx_ghz=f_rx_ghz,
                 bandwidth_ghz=bw_ghz,
@@ -163,7 +163,7 @@ def main(argv: list[str] | None = None) -> None:
         used_bin_starts.append(bin_start)
         used_bin_stops.append(bin_stop)
 
-        t_noise = sau.compute_noise_temperature(avg_hot, avg_cold, t_hot_k, t_cold_k)
+        t_noise = conv.compute_noise_temperature(avg_hot, avg_cold, t_hot_k, t_cold_k)
 
         start = max(0, bin_start)
         stop_exclusive = min(t_noise.size, bin_stop + 1)

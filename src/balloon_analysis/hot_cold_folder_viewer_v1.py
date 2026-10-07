@@ -25,7 +25,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.widgets import Button, TextBox
 
-import spec_analysis_utils as sau
+from balloon_analysis.utility import spec_analysis_utils as sau
+from balloon_analysis.utility import conversion as conv
 
 STAMP_RE = re.compile(r"^(\d{14})")
 LOAD_RE = re.compile(r"(hot|cold)$", re.IGNORECASE)
@@ -89,7 +90,7 @@ class NoiseTemperatureViewer:
         cold = sau.file_mean_spectrum(Path(cold_name))
         if hot.size != cold.size:
             raise ValueError(f"Bin-count mismatch: hot={hot.size}, cold={cold.size}")
-        return sau.compute_noise_temperature(hot, cold, self.thot, self.tcold)
+        return conv.compute_noise_temperature(hot, cold, self.thot, self.tcold)
 
     def _widgets(self):
         positions = ([0.10, 0.05, 0.08, 0.06], [0.19, 0.05, 0.12, 0.06],
@@ -136,7 +137,7 @@ class NoiseTemperatureViewer:
                 self.ax.set_xlim(float(x[0]), float(x[-1]))
             self.ax.relim()
             self.ax.autoscale_view(scalex=False, scaley=True)
-            sau._apply_x_axis_format(self.ax, self.header_meta, self.x_axis, xlabel)
+            sau.apply_x_axis_format(self.ax, self.header_meta, self.x_axis, xlabel)
             finite = tnoise[np.isfinite(tnoise)]
             median = np.median(finite) if finite.size else float("nan")
             self.ax.set_title(

@@ -3,7 +3,7 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 
-from . import gyro_analysis, pressure_analysis, telemetry_analysis, temperature_analysis
+from balloon_analysis.utility import gyro_analysis, pressure_analysis, telemetry_analysis, temperature_analysis
 
 #from background_analysis_utils import load_data, choose_file
 #import gyro_analysis, pressure_analysis, temperature_analysis, telemetry_analysis

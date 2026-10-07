@@ -244,7 +244,7 @@ def main() -> None:
     first_hot = pairs[0].hot.path
     _, first_spectrum, first_meta = io.load_spec_file(first_hot)
     n_bins = first_spectrum.shape[1]
-    bandwidth_ghz = sau._get_bw_ghz(header)
+    bandwidth_ghz = sau.get_bw_ghz(header)
     if bandwidth_ghz is None:
         bandwidth_ghz = sau._parse_frequency_ghz(first_meta.get("bandwidth"))
 

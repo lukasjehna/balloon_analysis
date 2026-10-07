@@ -12,7 +12,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.widgets import Button, RadioButtons, TextBox
 
-import balloon_analysis.spec_analysis_utils as sau
+from balloon_analysis.utility import spec_analysis_utils as sau
+from balloon_analysis.utility import conversion as conv
 
 STAMP_RE = re.compile(r"^(\d{14})")
 LOAD_RE = re.compile(r"(hot|cold)$", re.IGNORECASE)
@@ -228,7 +229,7 @@ class NoiseTemperatureViewer:
         # For the two signal modes, apply the requested relation:
         # avg_sig = avg_cold and avg_cold = avg_hot + offset.
         if self.calc_mode == "noise temperature":
-            result = sau.compute_noise_temperature(
+            result = conv.compute_noise_temperature(
                 avg_hot, avg_cold, self.thot, self.tcold
             )
             return result, "Noise temperature [K]"
@@ -276,7 +277,7 @@ class NoiseTemperatureViewer:
 
             self.ax_result.set_ylabel(result_ylabel)
             self.ax_aux.set_ylabel("Y-factor")
-            sau._apply_x_axis_format(self.ax_aux, self.header_meta, self.x_axis, xlabel)
+            sau.apply_x_axis_format(self.ax_aux, self.header_meta, self.x_axis, xlabel)
             self.ax_result.set_title(
                 f"[{self.index + 1}/{len(self.pairs)}] {self.calc_mode} | "
                 f"{group[0][0].name} | T_hot={self.thot:.2f} K, "
@@ -304,7 +305,7 @@ def main():
     args = parser.parse_args()
 
     default_folder = Path("/mnt/c/DLR/Data")
-    directory = sau.choose_directory(default_folder) if args.directory is None else Path(args.directory).expanduser().resolve()
+    directory = sau.io.select_folder(default_folder) if args.directory is None else Path(args.directory).expanduser().resolve()
     if directory is None:
         return
     if not directory.is_dir():

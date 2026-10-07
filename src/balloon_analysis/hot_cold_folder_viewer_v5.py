@@ -110,7 +110,7 @@ class NoiseTemperatureViewer:
         cold = sau.file_mean_spectrum(Path(cold_name))
         if hot.size != cold.size:
             raise ValueError(f"Bin-count mismatch: hot={hot.size}, cold={cold.size}")
-        tnoise = sau.compute_noise_temperature(hot, cold, self.thot, self.tcold)
+        tnoise = conv.compute_noise_temperature(hot, cold, self.thot, self.tcold)
         return hot, cold, tnoise
 
     def _widgets(self):
@@ -197,7 +197,7 @@ class NoiseTemperatureViewer:
             if self.y3min is not None and self.y3max is not None:
                 self.ax_diff.set_ylim(self.y3min, self.y3max)
 
-            sau._apply_x_axis_format(self.ax_diff, self.header_meta, self.x_axis, xlabel)
+            sau.apply_x_axis_format(self.ax_diff, self.header_meta, self.x_axis, xlabel)
             self.ax_nt.set_title(
                 f"[{self.index + 1}/{len(self.pairs)}] averaging {len(group)} pair(s) starting at "
                 f"{group[0][0].name} | mean Δt={separation:.1f} s | "

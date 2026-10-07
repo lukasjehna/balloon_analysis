@@ -21,7 +21,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import spec_analysis_utils as sau
-from .utility import io
+from balloon_analysis.utility import io
 
 TIMESTAMP_RE = re.compile(r"^(\d{14})")
 LOAD_RE = re.compile(r"(hot|cold)$", re.IGNORECASE)
@@ -175,14 +175,14 @@ def main() -> None:
         parser.error("No timestamped hot/cold pairs found within tolerance.")
 
     header = sau.parse_header_csv(directory)
-    thot_header, tcold_header = sau._extract_hot_cold_kelvin(header)
+    thot_header, tcold_header = sau.extract_hot_cold_kelvin(header)
     thot = args.thot if args.thot is not None else thot_header
     tcold = args.tcold if args.tcold is not None else tcold_header
     if thot is None or tcold is None:
         parser.error("Hot/cold temperatures are missing; supply --thot and --tcold.")
 
     _, first_spectrum, first_meta = io.load_spec_file(pairs[0].hot.path)
-    bandwidth = sau._get_bw_ghz(header) or sau._parse_frequency_ghz(first_meta.get("bandwidth"))
+    bandwidth = sau.get_bw_ghz(header) or sau._parse_frequency_ghz(first_meta.get("bandwidth"))
     center_bin = args.bin if args.bin is not None else frequency_to_bin(args.if_frequency, bandwidth, first_spectrum.shape[1])
 
     times_h, temperatures, labels = calculate_noise_temperatures(

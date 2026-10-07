@@ -1,25 +1,13 @@
 #!/usr/bin/env python3
+#uv run -m src.balloon_analysis.spec_to_csv_conv_folder 
 from __future__ import annotations
 
 import csv
-import tkinter as tk
 from pathlib import Path
-from tkinter import filedialog, messagebox
+from tkinter import messagebox
 
-from . import spec_analysis_utils as sau
-
-
-def select_folder(initialdir: Path | None = None) -> Path | None:
-    root = tk.Tk()
-    root.withdraw()
-    root.update()
-    path = filedialog.askdirectory(
-        title="Select folder containing .spec files",
-        initialdir=str(initialdir) if initialdir else None,
-        mustexist=True,
-    )
-    root.destroy()
-    return Path(path) if path else None
+from balloon_analysis.utility import spec_analysis_utils as sau
+from balloon_analysis.utility import io
 
 
 def spec_to_csv(spec_path: Path, output_dir: Path) -> Path:
@@ -59,7 +47,7 @@ def convert_folder(folder: Path) -> tuple[list[Path], list[tuple[Path, Exception
 
 
 def main() -> None:
-    folder = select_folder(Path.cwd())
+    folder = io.select_folder(Path.cwd())
     if folder is None:
         return
 

@@ -1,0 +1,31 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run: Hot Cold Viewer",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "balloon_analysis.hot_cold_folder_viewer",
+            "args": [
+                "--thot", "300",
+                "--tcold", "5",
+                "--pairs-per-average", "50",
+                "--spectral-bin-size", "3"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Run: IO Utility Script",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "balloon_analysis.utility.io",
+            "args": [
+                "--input-dir", "data/raw",
+                "--verbose"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        }
+    ]
+}

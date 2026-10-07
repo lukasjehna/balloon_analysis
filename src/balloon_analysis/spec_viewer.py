@@ -32,8 +32,8 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Button, TextBox
 
-from . import spec_analysis_utils as sau
-from .utility import io
+from balloon_analysis.utility import spec_analysis_utils as sau
+from balloon_analysis.utility import io
 
 _NUM_RE = re.compile(r"(\d+)")
 
@@ -177,7 +177,7 @@ class SpecViewer:
             self.ax.set_xlim(float(x[0]), float(x[-1]))
         self.ax.relim()
         self.ax.autoscale_view(scalex=False, scaley=True)
-        sau._apply_x_axis_format(self.ax, self.header_meta, self.x_axis_mode, x_label)
+        sau.apply_x_axis_format(self.ax, self.header_meta, self.x_axis_mode, x_label)
 
         n_spectra = meta.get("n_spectra") if meta else None
         int_time = meta.get("int_time_ms") if meta else None
@@ -213,7 +213,7 @@ def main(argv: list[str] | None = None) -> None:
     args = parser.parse_args(argv)
 
     if args.directory is None:
-        chosen = sau.choose_directory(Path.cwd())
+        chosen = io.select_folder(Path.cwd())
         if chosen is None:
             print("No directory selected. Exiting.")
             return
@@ -225,7 +225,7 @@ def main(argv: list[str] | None = None) -> None:
         print(f"Not a directory: {meas_dir}")
         return
 
-    meas_dir = sau._resolve_measurement_dir_with_specs(meas_dir)
+    meas_dir = sau.resolve_measurement_dir_with_specs(meas_dir)
     spec_files = scan_spec_files(meas_dir, recursive=args.recursive)
     if not spec_files:
         print(f"No .spec files found in {meas_dir}" + (" (recursively)" if args.recursive else ""))

@@ -10,7 +10,7 @@
 
 # Quick start
 ## analysis
-uv run python -m src.balloon_analysis.noise_temperature_folder_viewer --thot 300 --tcold 5 --pairs-per-average 30 --spectral-bin-size 3
+uv run -m src.balloon_analysis.noise_temperature_folder_viewer --thot 300 --tcold 5 --pairs-per-average 30 --spectral-bin-size 3
 
 # Documentation
 - Data analyis -> docs/analysis.md

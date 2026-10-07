@@ -11,8 +11,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.widgets import Button, TextBox
 
-from . import spec_analysis_utils as sau
-from .utility import io
+from balloon_analysis.utility import spec_analysis_utils as sau
+from balloon_analysis.utility import io
 
 NUM_RE = re.compile(r"(\d+)")
 
@@ -228,7 +228,7 @@ def main(argv: list[str] | None = None) -> None:
     args = parser.parse_args(argv)
 
     if args.directory is None:
-        chosen = sau.choose_directory(Path.cwd())
+        chosen = io.select_folder(Path.cwd())
         if chosen is None:
             print("No directory selected. Exiting.")
             return

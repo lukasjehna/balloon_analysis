@@ -2,18 +2,22 @@ import argparse
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+import pandas as pd
 
-from balloon_analysis.utility import gyro_analysis, pressure_analysis, telemetry_analysis, temperature_analysis
-
-#from background_analysis_utils import load_data, choose_file
-#import gyro_analysis, pressure_analysis, temperature_analysis, telemetry_analysis
-from .background_analysis_utils import choose_file, load_data
+from balloon_analysis.utility.browser import select_file
+from balloon_analysis.utility.housekeeping_utils import load_data
+from balloon_analysis.utility.sensors import (
+    GyroAnalysis,
+    PressureAnalysis,
+    TelemetryAnalysis,
+    TemperatureAnalysis,
+)
 
 SENSORS = {
-    "pressure": pressure_analysis,
-    "temperature": temperature_analysis,
-    "gyro": gyro_analysis,
-    "telemetry": telemetry_analysis,
+    "pressure": PressureAnalysis,
+    "temperature": TemperatureAnalysis,
+    "gyro": GyroAnalysis,
+    "telemetry": TelemetryAnalysis,
 }
 
 
@@ -52,9 +56,11 @@ def main():
         csv_path = sensor_mod.default_csv_path()
 
     if csv_path is None:
-        default_data_dir = Path(__file__).resolve().parents[2] / "data"
-        csv_path = choose_file(initialdir=str(default_data_dir))
-        if csv_path is None:
+        custom_default_dir = Path("/mnt/c/DLR/Data")
+        
+        # Use select_file imported from browser.py
+        csv_path = select_file(initialdir=custom_default_dir, title="Select sensor CSV file")
+        if csv_path is None or str(csv_path) == ".":
             print("No file selected; exiting.")
             return
 
@@ -64,6 +70,23 @@ def main():
         df = sensor_mod.preprocess_data(df)
 
     if args.sensor == "temperature":
+        # Rename timestamp column to 'time' if needed
+        if "timestamp" in df.columns and "time" not in df.columns:
+            df = df.rename(columns={"timestamp": "time"})
+        if "time" in df.columns:
+            df["time"] = pd.to_datetime(df["time"], errors="coerce")
+
+        # Melt the wide-format temperature columns into long format
+        id_vars = ["time"] if "time" in df.columns else []
+        value_vars = [col for col in df.columns if col.endswith("_temp_C")]
+        
+        df = df.melt(
+            id_vars=id_vars,
+            value_vars=value_vars,
+            var_name="sensor_id",
+            value_name="temperature_c"
+        )
+
         temp_df = (
             df.pivot_table(index="time", columns="sensor_id", values="temperature_c", aggfunc="mean")
             .reset_index()

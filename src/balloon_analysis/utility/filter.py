@@ -1,32 +1,56 @@
 #!/usr/bin/env python3
-# despiking
+"""Despiking."""
+
+from __future__ import annotations
 
 import numpy as np
+from numpy.lib.stride_tricks import sliding_window_view
+
+_MAD_TO_SIGMA = 1.4826  # scales MAD to a standard deviation for Gaussian data
+_MIN_FINITE_SAMPLES = 3
 
 
-def despike_1d(y: np.ndarray, window: int = 5, sigma_thresh: float = 6.0) -> tuple[np.ndarray, int]:
-    """Replace impulse-like outliers in finite samples using a median/MAD rule.
-    smaller sigma_thresh  is more aggressive; window is the size of the median filter (odd integer >= 3)."""
+def _odd_window(window: int) -> int:
+    """Smallest odd integer >= max(3, window)."""
+    return max(3, int(window) | 1)
+
+
+def _running_median(values: np.ndarray, window: int) -> np.ndarray:
+    """Centered running median with edge-replicated padding (same length as input)."""
+    pad = window // 2
+    padded = np.pad(values, (pad, pad), mode="edge")
+    return np.median(sliding_window_view(padded, window), axis=1)
+
+
+def despike_1d(
+    y: np.ndarray,
+    window: int = 5,
+    sigma_thresh: float = 6.0,
+) -> tuple[np.ndarray, int]:
+    """Replace impulse-like outliers in the finite samples using a median/MAD rule.
+
+    window:       size of the running median (forced to an odd integer >= 3).
+    sigma_thresh: spike threshold in robust sigmas; smaller is more aggressive.
+
+    Non-finite samples are left untouched and ignored when computing medians.
+    Returns (despiked copy, number of samples replaced).
+    """
     arr = np.asarray(y, dtype=float)
     out = arr.copy()
 
     finite = np.isfinite(arr)
-    if np.count_nonzero(finite) < 3:
+    if np.count_nonzero(finite) < _MIN_FINITE_SAMPLES:
         return out, 0
 
     vals = arr[finite]
-    w = max(3, int(window) | 1)  # odd window >= 3
-    pad = w // 2
-    padded = np.pad(vals, (pad, pad), mode="edge")
-    med = np.array([np.median(padded[i:i + w]) for i in range(vals.size)], dtype=float)
+    med = _running_median(vals, _odd_window(window))
 
     resid = vals - med
-    mad = float(np.median(np.abs(resid)))
-    sigma = max(1.4826 * mad, np.finfo(float).eps)
-    spikes = np.abs(resid) > (sigma_thresh * sigma)
+    mad = np.median(np.abs(resid))
+    sigma = max(_MAD_TO_SIGMA * mad, np.finfo(float).eps)
+    spikes = np.abs(resid) > sigma_thresh * sigma
 
-    idx = np.where(finite)[0]
-    out[idx[spikes]] = med[spikes]
+    out[np.flatnonzero(finite)[spikes]] = med[spikes]
     return out, int(np.count_nonzero(spikes))
 
 
@@ -37,9 +61,8 @@ def despike_1d_in_window(
     window: int = 5,
     sigma_thresh: float = 6.0,
 ) -> tuple[np.ndarray, int]:
-    """Apply despike only inside [bin_start, bin_stop] (inclusive)."""
-    arr = np.asarray(y, dtype=float)
-    out = arr.copy()
+    """Despike only inside [bin_start, bin_stop] (inclusive); the rest is unchanged."""
+    out = np.array(y, dtype=float)  # copy
     if out.size == 0:
         return out, 0
 
@@ -48,6 +71,6 @@ def despike_1d_in_window(
     if i0 > i1:
         return out, 0
 
-    filtered, removed = despike_1d(out[i0:i1 + 1], window=window, sigma_thresh=sigma_thresh)
-    out[i0:i1 + 1] = filtered
+    segment = slice(i0, i1 + 1)
+    out[segment], removed = despike_1d(out[segment], window=window, sigma_thresh=sigma_thresh)
     return out, removed

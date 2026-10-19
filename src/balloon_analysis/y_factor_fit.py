@@ -1,11 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Sep 11 15:05:00 2026
-
-@author: antonia
-"""
-
 
 from pathlib import Path
 import pandas as pd
@@ -19,14 +12,14 @@ from scipy.interpolate import CubicSpline
 # %%
 
 
-    
-ordner = Path(r"/Users/antonia/Desktop/Kiruna_01Uhr")
+# todo set this as a default stating folder for the gui selection
+ordner = Path(r"/mnt/c/DLR/Data")
 
 
 hot_dateien = sorted(ordner.glob("*hot.csv"))
 cold_dateien = sorted(ordner.glob("*cold.csv"))
 
-print("Anzahl gemittleter Datein:", len(hot_dateien))
+print("Number of averaged files:", len(hot_dateien))
 
 m = 1
 

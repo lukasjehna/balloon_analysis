@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-io.py: .spec and header CSV parsing
+io_handlers.py: .spec and header CSV parsing
 
 Layout
 ------

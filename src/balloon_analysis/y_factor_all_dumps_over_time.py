@@ -38,7 +38,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from balloon_analysis.utility import spec_analysis_utils as sau
-from balloon_analysis.utility import io
+from balloon_analysis.utility import io_handlers
 
 TIMESTAMP_RE = re.compile(r"^(\d{14})")
 LOAD_RE = re.compile(r"(hot|cold)$", re.IGNORECASE)
@@ -231,8 +231,8 @@ def calculate_y_factors_per_spectrum(
 
         # Load spectra using existing helper (returns squared-mean spectrum)
         # Here we need all individual spectra, so load the raw file again.
-        _, hot_spectra, _ = io.load_spec_file(pair.hot.path)
-        _, cold_spectra, _ = io.load_spec_file(pair.cold.path)
+        _, hot_spectra, _ = io_handlers.load_spec_file(pair.hot.path)
+        _, cold_spectra, _ = io_handlers.load_spec_file(pair.cold.path)
         n_hot = hot_spectra.shape[0]
         n_cold = cold_spectra.shape[0]
         n_used = min(n_hot, n_cold, len(ts_hot), len(ts_cold))
@@ -294,13 +294,13 @@ def main() -> None:
     if not pairs:
         parser.error("No timestamped hot/cold pairs found within the requested tolerance.")
 
-    header = sau.parse_header_csv(directory)
+    header = io_handlers.parse_header_csv(directory)
     first_hot = pairs[0].hot.path
-    _, first_spectrum, first_meta = io.load_spec_file(first_hot)
+    _, first_spectrum, first_meta = io_handlers.load_spec_file(first_hot)
     n_bins = first_spectrum.shape[1]
-    bandwidth_ghz = sau.get_bw_ghz(header)
+    bandwidth_ghz = io_handlers.get_bw_ghz(header)
     if bandwidth_ghz is None:
-        bandwidth_ghz = sau._parse_frequency_ghz(first_meta.get("bandwidth"))
+        bandwidth_ghz = io_handlers._parse_frequency_ghz(first_meta.get("bandwidth"))
 
     if args.bin is None:
         try:

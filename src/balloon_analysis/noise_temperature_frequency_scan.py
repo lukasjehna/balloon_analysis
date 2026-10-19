@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from balloon_analysis.utility import spec_analysis_utils as sau
-from balloon_analysis.utility import io, conv
+from balloon_analysis.utility import io_handlers, conv
 
 def extract_hot_cold_kelvin(header_meta: dict) -> tuple[float | None, float | None]:
     meta_lc = {k.lower(): v for k, v in header_meta.items()}
@@ -124,7 +124,7 @@ def main(argv: list[str] | None = None) -> None:
 
         header_meta = sau.parse_header_csv(meas_dir)
         # Also read inline metadata from the .spec file so bandwidth is available
-        _, _, spec_meta = io.load_spec_file(spec_files[0])
+        _, _, spec_meta = io_handlers.load_spec_file(spec_files[0])
         header_meta = {**header_meta, **{k: str(v) for k, v in spec_meta.items() if v is not None}}
 
         meta_lc = {k.lower(): v for k, v in header_meta.items()}
@@ -146,7 +146,7 @@ def main(argv: list[str] | None = None) -> None:
         # Compute bin window for this measurement if not explicitly provided
         if args.bin_start is None or args.bin_stop is None:
             bw_ghz = sau.get_bw_ghz(header_meta)
-            bin_start, bin_stop = io.compute_bin_window_from_center_freq(
+            bin_start, bin_stop = io_handlers.compute_bin_window_from_center_freq(
                 center_freq_ghz=args.center_freq,
                 f_rx_ghz=f_rx_ghz,
                 bandwidth_ghz=bw_ghz,

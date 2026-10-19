@@ -26,7 +26,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.widgets import Button, RadioButtons, TextBox
 
-from balloon_analysis.utility import browser, io, plot
+from balloon_analysis.utility import browser, io_handlers, plot
 from balloon_analysis.utility import conversion as conv
 
 #%%
@@ -426,7 +426,7 @@ def main():
     if args.spectral_bin_size > 1:
         print(f"x-bin -axis over {args.spectral_bin_size} spectral bins.")
 
-    SpecViewer(pairs, io.parse_header_csv(directory), args.thot, args.tcold, args.x_axis, 4096, args.pairs_per_average, args.spectral_bin_size, args.goto)
+    SpecViewer(pairs, io_handlers.parse_header_csv(directory), args.thot, args.tcold, args.x_axis, 4096, args.pairs_per_average, args.spectral_bin_size, args.goto)
     plt.show()
 
 

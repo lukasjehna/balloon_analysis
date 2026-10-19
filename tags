@@ -151,7 +151,7 @@ _draw	src/balloon_analysis/spec_analysis_utils_v3_trash.py	/^    def _draw() -> 
 _draw	src/balloon_analysis/utility/plot.py	/^    def _draw() -> None:$/;"	f	function:launch_interactive_noise_temperature_browser	typeref:typename:None	file:
 _find_dedicated_header_file	src/balloon_analysis/spec_analysis_utils_v1.py	/^def _find_dedicated_header_file(spec_path: Path) -> Optional[Path]:$/;"	f	typeref:typename:Optional[Path]
 _find_dedicated_header_file	src/balloon_analysis/spec_analysis_utils_v3_trash.py	/^def _find_dedicated_header_file(spec_path: Path) -> Optional[Path]:$/;"	f	typeref:typename:Optional[Path]
-_find_dedicated_header_file	src/balloon_analysis/utility/io.py	/^def _find_dedicated_header_file(spec_path: Path) -> Path | None:$/;"	f	typeref:typename:Path|None
+_find_dedicated_header_file	src/balloon_analysis/utility/io_handlers.py	/^def _find_dedicated_header_file(spec_path: Path) -> Path | None:$/;"	f	typeref:typename:Path|None
 _frequency_offset_to_bin_index	src/balloon_analysis/spec_analysis_utils_v3_trash.py	/^def _frequency_offset_to_bin_index($/;"	f	typeref:typename:int
 _frequency_offset_to_bin_index	src/balloon_analysis/utility/conversion.py	/^def _frequency_offset_to_bin_index($/;"	f	typeref:typename:int
 _get_bandwidth_hz	src/balloon_analysis/background_analysis_utils.py	/^def _get_bandwidth_hz(meta: dict[str, object], n_bins: int) -> float | None:$/;"	f	typeref:typename:float|None
@@ -159,7 +159,7 @@ _get_bin_window_for_entry	src/balloon_analysis/spec_analysis_utils_v3_trash.py	/
 _get_bin_window_for_entry	src/balloon_analysis/utility/plot.py	/^    def _get_bin_window_for_entry(e: dict[str, object]) -> tuple[int, int]:$/;"	f	function:launch_interactive_noise_temperature_browser	typeref:typename:tuple[int,int]	file:
 _get_header_value	src/balloon_analysis/spec_analysis_utils_v1.py	/^def _get_header_value(header_meta: Dict[str, str], *keys: str) -> Optional[str]:$/;"	f	typeref:typename:Optional[str]
 _get_header_value	src/balloon_analysis/spec_analysis_utils_v3_trash.py	/^def _get_header_value(header_meta: Dict[str, str], *keys: str) -> Optional[str]:$/;"	f	typeref:typename:Optional[str]
-_get_header_value	src/balloon_analysis/utility/io.py	/^def _get_header_value(header_meta: dict[str, str], *keys: str) -> str | None:$/;"	f	typeref:typename:str|None
+_get_header_value	src/balloon_analysis/utility/io_handlers.py	/^def _get_header_value(header_meta: dict[str, str], *keys: str) -> str | None:$/;"	f	typeref:typename:str|None
 _get_x_axis_for_entry	src/balloon_analysis/spec_analysis_utils_v1.py	/^    def _get_x_axis_for_entry(e: Dict[str, object], n_bins: int) -> Tuple[np.ndarray, str]:$/;"	f	function:launch_interactive_noise_temperature_browser	typeref:typename:Tuple[np.ndarray,str]	file:
 _get_x_axis_for_entry	src/balloon_analysis/spec_analysis_utils_v3_trash.py	/^    def _get_x_axis_for_entry(e: Dict[str, object], n_bins: int) -> Tuple[np.ndarray, str]:$/;"	f	function:launch_interactive_noise_temperature_browser	typeref:typename:Tuple[np.ndarray,str]	file:
 _get_x_axis_for_entry	src/balloon_analysis/utility/plot.py	/^    def _get_x_axis_for_entry(e: dict[str, object], n_bins: int) -> tuple[np.ndarray, str]:$/;"	f	function:launch_interactive_noise_temperature_browser	typeref:typename:tuple[np.ndarray,str]	file:
@@ -204,7 +204,7 @@ _parse_bin_range	src/balloon_analysis/spec_analysis_index_range_old.py	/^    def
 _parse_bin_range	src/balloon_analysis/spec_analysis_simple_old.py	/^    def _parse_bin_range(rng: str, n_total_bins: int) -> Tuple[int, int]:$/;"	f	function:main	typeref:typename:Tuple[int,int]	file:
 _parse_dedicated_header_csv	src/balloon_analysis/spec_analysis_utils_v1.py	/^def _parse_dedicated_header_csv(header_csv: Path) -> Dict[str, str]:$/;"	f	typeref:typename:Dict[str,str]
 _parse_dedicated_header_csv	src/balloon_analysis/spec_analysis_utils_v3_trash.py	/^def _parse_dedicated_header_csv(header_csv: Path) -> Dict[str, str]:$/;"	f	typeref:typename:Dict[str,str]
-_parse_dedicated_header_csv	src/balloon_analysis/utility/io.py	/^def _parse_dedicated_header_csv(header_csv: Path) -> dict[str, str]:$/;"	f	typeref:typename:dict[str,str]
+_parse_dedicated_header_csv	src/balloon_analysis/utility/io_handlers.py	/^def _parse_dedicated_header_csv(header_csv: Path) -> dict[str, str]:$/;"	f	typeref:typename:dict[str,str]
 _parse_frequency_ghz	src/balloon_analysis/spec_analysis_utils_v1.py	/^def _parse_frequency_ghz(raw: Optional[str]) -> Optional[float]:$/;"	f	typeref:typename:Optional[float]
 _parse_frequency_ghz	src/balloon_analysis/spec_analysis_utils_v3_trash.py	/^def _parse_frequency_ghz(raw: Optional[str]) -> Optional[float]:$/;"	f	typeref:typename:Optional[float]
 _parse_header_line	src/balloon_analysis/spec_analysis_index_range_old.py	/^def _parse_header_line(header: str) -> dict[str, str]:$/;"	f	typeref:typename:dict[str,str]
@@ -328,7 +328,7 @@ draw	src/balloon_analysis/spec_viewer.py	/^    def draw(self):$/;"	m	class:SpecV
 extract_hot_cold_kelvin	src/balloon_analysis/noise_temperature_frequency_scan.py	/^def extract_hot_cold_kelvin(header_meta: dict) -> tuple[float | None, float | None]:$/;"	f	typeref:typename:tuple[float|None,float|None]
 extract_hot_cold_kelvin	src/balloon_analysis/spec_analysis_utils_v1.py	/^def extract_hot_cold_kelvin(header_meta: Dict[str, str]) -> Tuple[Optional[float], Optional[floa/;"	f	typeref:typename:Tuple[Optional[float],Optional[float]]
 extract_hot_cold_kelvin	src/balloon_analysis/spec_analysis_utils_v3_trash.py	/^def extract_hot_cold_kelvin(header_meta: Dict[str, str]) -> Tuple[Optional[float], Optional[floa/;"	f	typeref:typename:Tuple[Optional[float],Optional[float]]
-extract_hot_cold_kelvin	src/balloon_analysis/utility/io.py	/^def extract_hot_cold_kelvin(header_meta: dict[str, str]) -> tuple[float | None, float | None]:$/;"	f	typeref:typename:tuple[float|None,float|None]
+extract_hot_cold_kelvin	src/balloon_analysis/utility/io_handlers.py	/^def extract_hot_cold_kelvin(header_meta: dict[str, str]) -> tuple[float | None, float | None]:$/;"	f	typeref:typename:tuple[float|None,float|None]
 file_mean_spectrum	src/balloon_analysis/spec_analysis_utils_v1.py	/^def file_mean_spectrum(spec_path: Path) -> np.ndarray:$/;"	f	typeref:typename:np.ndarray
 file_mean_spectrum	src/balloon_analysis/spec_analysis_utils_v3_trash.py	/^def file_mean_spectrum(spec_path: Path) -> np.ndarray:$/;"	f	typeref:typename:np.ndarray
 file_mean_spectrum	src/balloon_analysis/utility/conversion.py	/^def file_mean_spectrum(spec_path: Path) -> np.ndarray:$/;"	f	typeref:typename:np.ndarray
@@ -361,10 +361,10 @@ frequency_to_bin	src/balloon_analysis/y_factor_all_dumps_over_time_v2.py	/^def f
 frequency_to_bin	src/balloon_analysis/y_factor_average_over_time.py	/^def frequency_to_bin(if_frequency_mhz: float, bandwidth_ghz: float | None, n_bins: int) -> int:$/;"	f	typeref:typename:int
 get_bw_ghz	src/balloon_analysis/spec_analysis_utils_v1.py	/^def get_bw_ghz(header_meta: Dict[str, str]) -> Optional[float]:$/;"	f	typeref:typename:Optional[float]
 get_bw_ghz	src/balloon_analysis/spec_analysis_utils_v3_trash.py	/^def get_bw_ghz(header_meta: Dict[str, str]) -> Optional[float]:$/;"	f	typeref:typename:Optional[float]
-get_bw_ghz	src/balloon_analysis/utility/io.py	/^def get_bw_ghz(header_meta: dict[str, str]) -> float | None:$/;"	f	typeref:typename:float|None
+get_bw_ghz	src/balloon_analysis/utility/io_handlers.py	/^def get_bw_ghz(header_meta: dict[str, str]) -> float | None:$/;"	f	typeref:typename:float|None
 get_lo_ghz	src/balloon_analysis/spec_analysis_utils_v1.py	/^def get_lo_ghz(header_meta: Dict[str, str]) -> Optional[float]:$/;"	f	typeref:typename:Optional[float]
 get_lo_ghz	src/balloon_analysis/spec_analysis_utils_v3_trash.py	/^def get_lo_ghz(header_meta: Dict[str, str]) -> Optional[float]:$/;"	f	typeref:typename:Optional[float]
-get_lo_ghz	src/balloon_analysis/utility/io.py	/^def get_lo_ghz(header_meta: dict[str, str]) -> float | None:$/;"	f	typeref:typename:float|None
+get_lo_ghz	src/balloon_analysis/utility/io_handlers.py	/^def get_lo_ghz(header_meta: dict[str, str]) -> float | None:$/;"	f	typeref:typename:float|None
 get_series_specs	src/balloon_analysis/gyro_analysis.py	/^def get_series_specs():$/;"	f
 get_series_specs	src/balloon_analysis/pressure_analysis.py	/^def get_series_specs():$/;"	f
 get_series_specs	src/balloon_analysis/telemetry_analysis.py	/^def get_series_specs():$/;"	f
@@ -396,7 +396,7 @@ load_data	src/balloon_analysis/background_analysis_utils.py	/^def load_data(csv_
 load_spec_file	src/balloon_analysis/spec_analysis_index_range_old.py	/^def load_spec_file(spec_path: Path):$/;"	f
 load_spec_file	src/balloon_analysis/spec_analysis_utils_v1.py	/^def load_spec_file(spec_path: Path):$/;"	f
 load_spec_file	src/balloon_analysis/spec_analysis_utils_v3_trash.py	/^def load_spec_file(spec_path: Path):$/;"	f
-load_spec_file	src/balloon_analysis/utility/io.py	/^def load_spec_file(spec_path: Path):$/;"	f
+load_spec_file	src/balloon_analysis/utility/io_handlers.py	/^def load_spec_file(spec_path: Path):$/;"	f
 load_spec_timestamps	src/balloon_analysis/y_factor_all_dumps_over_time.py	/^def load_spec_timestamps(spec_path: Path) -> list[float]:$/;"	f	typeref:typename:list[float]
 load_uncached	src/balloon_analysis/spec_folder_viewer.py	/^    def load_uncached(self, path_str: str):$/;"	m	class:SpecViewer
 load_uncached	src/balloon_analysis/spec_folder_viewer_v1.py	/^    def load_uncached(self, path_str: str):$/;"	m	class:SpecViewer
@@ -473,7 +473,7 @@ np	src/balloon_analysis/spec_to_csv_conv_file.py	/^import numpy as np$/;"	I	name
 np	src/balloon_analysis/utility/browser.py	/^import numpy as np$/;"	I	nameref:module:numpy
 np	src/balloon_analysis/utility/conversion.py	/^import numpy as np$/;"	I	nameref:module:numpy
 np	src/balloon_analysis/utility/filter.py	/^import numpy as np$/;"	I	nameref:module:numpy
-np	src/balloon_analysis/utility/io.py	/^import numpy as np$/;"	I	nameref:module:numpy
+np	src/balloon_analysis/utility/io_handlers.py	/^import numpy as np$/;"	I	nameref:module:numpy
 np	src/balloon_analysis/utility/plot.py	/^import numpy as np$/;"	I	nameref:module:numpy
 np	src/balloon_analysis/y_factor_all_dumps_over_time.py	/^import numpy as np$/;"	I	nameref:module:numpy
 np	src/balloon_analysis/y_factor_all_dumps_over_time_v1.py	/^import numpy as np$/;"	I	nameref:module:numpy
@@ -496,11 +496,11 @@ parse_file	src/balloon_analysis/hot_cold_folder_viewer_v2.py	/^def parse_file(pa
 parse_file	src/balloon_analysis/hot_cold_folder_viewer_v3.py	/^def parse_file(path: Path) -> Optional[tuple[datetime, str, Path]]:$/;"	f	typeref:typename:Optional[tuple[datetime,str,Path]]
 parse_file	src/balloon_analysis/hot_cold_folder_viewer_v4.py	/^def parse_file(path: Path) -> Optional[tuple[datetime, str, Path]]:$/;"	f	typeref:typename:Optional[tuple[datetime,str,Path]]
 parse_file	src/balloon_analysis/hot_cold_folder_viewer_v5.py	/^def parse_file(path: Path) -> Optional[tuple[datetime, str, Path]]:$/;"	f	typeref:typename:Optional[tuple[datetime,str,Path]]
-parse_frequency_ghz	src/balloon_analysis/utility/io.py	/^def parse_frequency_ghz(raw: str | None) -> float | None:$/;"	f	typeref:typename:float|None
+parse_frequency_ghz	src/balloon_analysis/utility/io_handlers.py	/^def parse_frequency_ghz(raw: str | None) -> float | None:$/;"	f	typeref:typename:float|None
 parse_header_csv	src/balloon_analysis/spec_analysis_utils_v1.py	/^def parse_header_csv(meas_dir: Path) -> Dict[str, str]:$/;"	f	typeref:typename:Dict[str,str]
 parse_header_csv	src/balloon_analysis/spec_analysis_utils_v3_trash.py	/^def parse_header_csv(meas_dir: Path) -> Dict[str, str]:$/;"	f	typeref:typename:Dict[str,str]
-parse_header_csv	src/balloon_analysis/utility/io.py	/^def parse_header_csv(meas_dir: Path) -> dict[str, str]:$/;"	f	typeref:typename:dict[str,str]
-parse_header_line	src/balloon_analysis/utility/io.py	/^def parse_header_line(header: str) -> dict[str, str]:$/;"	f	typeref:typename:dict[str,str]
+parse_header_csv	src/balloon_analysis/utility/io_handlers.py	/^def parse_header_csv(meas_dir: Path) -> dict[str, str]:$/;"	f	typeref:typename:dict[str,str]
+parse_header_line	src/balloon_analysis/utility/io_handlers.py	/^def parse_header_line(header: str) -> dict[str, str]:$/;"	f	typeref:typename:dict[str,str]
 parse_spectrum_file	src/balloon_analysis/cold_load_temperature_over_time.py	/^def parse_spectrum_file(path: Path) -> SpectrumFile | None:$/;"	f	typeref:typename:SpectrumFile|None
 parse_spectrum_file	src/balloon_analysis/noise_temperature_all_dumbs_over_time.py	/^def parse_spectrum_file(path: Path) -> SpectrumFile | None:$/;"	f	typeref:typename:SpectrumFile|None
 parse_spectrum_file	src/balloon_analysis/noise_temperature_all_dumbs_over_time_v1.py	/^def parse_spectrum_file(path: Path) -> SpectrumFile | None:$/;"	f	typeref:typename:SpectrumFile|None
@@ -510,7 +510,7 @@ parse_spectrum_file	src/balloon_analysis/y_factor_all_dumps_over_time.py	/^def p
 parse_spectrum_file	src/balloon_analysis/y_factor_all_dumps_over_time_v1.py	/^def parse_spectrum_file(path: Path) -> SpectrumFile | None:$/;"	f	typeref:typename:SpectrumFile|None
 parse_spectrum_file	src/balloon_analysis/y_factor_all_dumps_over_time_v2.py	/^def parse_spectrum_file(path: Path) -> SpectrumFile | None:$/;"	f	typeref:typename:SpectrumFile|None
 parse_spectrum_file	src/balloon_analysis/y_factor_average_over_time.py	/^def parse_spectrum_file(path: Path) -> SpectrumFile | None:$/;"	f	typeref:typename:SpectrumFile|None
-parse_temperature_value	src/balloon_analysis/utility/io.py	/^def parse_temperature_value(raw: str | None) -> float | None:$/;"	f	typeref:typename:float|None
+parse_temperature_value	src/balloon_analysis/utility/io_handlers.py	/^def parse_temperature_value(raw: str | None) -> float | None:$/;"	f	typeref:typename:float|None
 pd	src/balloon_analysis/background_analysis_utils.py	/^import pandas as pd$/;"	I	nameref:module:pandas
 pd	src/balloon_analysis/t_format_converter.py	/^import pandas as pd$/;"	I	nameref:module:pandas
 pd	src/balloon_analysis/telemetry_analysis.py	/^import pandas as pd$/;"	I	nameref:module:pandas
@@ -569,7 +569,7 @@ preprocess_data	src/balloon_analysis/telemetry_analysis.py	/^def preprocess_data
 print("%.2f" % y[x])	docs/todo.md	/^    		print("%.2f" % y[x])$/;"	c
 print_header_meta	src/balloon_analysis/spec_analysis_utils_v1.py	/^def print_header_meta(header_meta: Dict[str, str]) -> None:$/;"	f	typeref:typename:None
 print_header_meta	src/balloon_analysis/spec_analysis_utils_v3_trash.py	/^def print_header_meta(header_meta: Dict[str, str]) -> None:$/;"	f	typeref:typename:None
-print_header_meta	src/balloon_analysis/utility/io.py	/^def print_header_meta(header_meta: dict[str, str]) -> None:$/;"	f	typeref:typename:None
+print_header_meta	src/balloon_analysis/utility/io_handlers.py	/^def print_header_meta(header_meta: dict[str, str]) -> None:$/;"	f	typeref:typename:None
 python	.vscode/launch.json	/^            "python": "${workspaceFolder}\/.venv\/bin\/python",$/;"	s	object:configurations.0
 python.analysis.extraPaths	.vscode/settings.json	/^    "python.analysis.extraPaths": [$/;"	a
 reload_file_list	src/balloon_analysis/spec_viewer.py	/^    def reload_file_list(self, directory: Path, recursive: bool):$/;"	m	class:SpecViewer
@@ -615,7 +615,7 @@ sau	src/balloon_analysis/y_factor_all_dumps_over_time_v2.py	/^import spec_analys
 sau	src/balloon_analysis/y_factor_average_over_time.py	/^from balloon_analysis.utility import spec_analysis_utils as sau$/;"	x	nameref:unknown:spec_analysis_utils
 save_hot_cold_average_csv	src/balloon_analysis/spec_analysis_utils_v1.py	/^def save_hot_cold_average_csv($/;"	f	typeref:typename:Path
 save_hot_cold_average_csv	src/balloon_analysis/spec_analysis_utils_v3_trash.py	/^def save_hot_cold_average_csv($/;"	f	typeref:typename:Path
-save_hot_cold_average_csv	src/balloon_analysis/utility/io.py	/^def save_hot_cold_average_csv($/;"	f	typeref:typename:Path
+save_hot_cold_average_csv	src/balloon_analysis/utility/io_handlers.py	/^def save_hot_cold_average_csv($/;"	f	typeref:typename:Path
 scan_spec_files	src/balloon_analysis/spec_folder_viewer.py	/^def scan_spec_files(directory: Path, recursive: bool = False) -> list[Path]:$/;"	f	typeref:typename:list[Path]
 scan_spec_files	src/balloon_analysis/spec_folder_viewer_v1.py	/^def scan_spec_files(directory: Path, recursive: bool = False) -> List[Path]:$/;"	f	typeref:typename:List[Path]
 scan_spec_files	src/balloon_analysis/spec_folder_viewer_v2.0.py	/^def scan_spec_files(directory: Path, recursive: bool = False) -> List[Path]:$/;"	f	typeref:typename:List[Path]

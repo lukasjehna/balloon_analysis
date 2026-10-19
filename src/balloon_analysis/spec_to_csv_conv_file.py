@@ -9,7 +9,7 @@ from tkinter import filedialog, messagebox
 import numpy as np
 
 from balloon_analysis.utility import spec_analysis_utils as sau
-from balloon_analysis.utility import io
+from balloon_analysis.utility import io_handlers
 
 def select_spec_file(initialdir: Path | None = None) -> Path | None:
     root = tk.Tk()
@@ -24,7 +24,7 @@ def select_spec_file(initialdir: Path | None = None) -> Path | None:
 
 
 def spec_to_csv(spec_path: Path) -> Path:
-    times, spectra, meta = io.load_spec_file(spec_path)
+    times, spectra, meta = io_handlers.load_spec_file(spec_path)
     out_path = spec_path.with_suffix(".csv")
 
     x, xlabel = sau._build_x_axis(spectra.shape[1], meta, "frequency")

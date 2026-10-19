@@ -18,12 +18,12 @@ import numpy as np
 
 # def get_lo_ghz(header_meta: dict[str, str]) -> float | None:
 #     raw = _get_header_value(header_meta, "f_LO", "f_RX")
-#     return io.parse_frequency_ghz(raw)
+#     return io_handlers.parse_frequency_ghz(raw)
 
 
 # def get_bw_ghz(header_meta: dict[str, str]) -> float | None:
 #     raw = _get_header_value(header_meta, "BW", "bandwidth")
-#     return io.parse_frequency_ghz(raw)
+#     return io_handlers.parse_frequency_ghz(raw)
 
 
 # def _frequency_offset_to_bin_index(
@@ -143,7 +143,7 @@ import numpy as np
 #     total_n = 0
 
 #     for spec_path in files:
-#         _, spectra, _ = io.load_spec_file(spec_path)
+#         _, spectra, _ = io_handlers.load_spec_file(spec_path)
 #         n_spectra, n_bins = spectra.shape
 
 #         if sum_spectrum is None:
@@ -165,7 +165,7 @@ import numpy as np
 
 
 # def file_mean_spectrum(spec_path: Path) -> np.ndarray:
-#     _, spectra, _ = io.load_spec_file(spec_path)
+#     _, spectra, _ = io_handlers.load_spec_file(spec_path)
 #     # Return mean of squared counts
 #     return (spectra.astype(float) ** 2).mean(axis=0).astype(float)
 
@@ -221,7 +221,7 @@ import numpy as np
 
 #     total_hot_spectra = 0
 #     for spec_path in hot_files:
-#         _, spectra, _ = io.load_spec_file(spec_path)
+#         _, spectra, _ = io_handlers.load_spec_file(spec_path)
 #         n_spectra, n_bins = spectra.shape
 #         x, x_label = build_x_axis(n_bins, header_meta, x_axis_mode)
 #         for i in range(n_spectra):
@@ -233,7 +233,7 @@ import numpy as np
 
 #     total_cold_spectra = 0
 #     for spec_path in cold_files:
-#         _, spectra, _ = io.load_spec_file(spec_path)
+#         _, spectra, _ = io_handlers.load_spec_file(spec_path)
 #         n_spectra, n_bins = spectra.shape
 #         x, x_label = build_x_axis(n_bins, header_meta, x_axis_mode)
 #         for i in range(n_spectra):

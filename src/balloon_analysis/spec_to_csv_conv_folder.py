@@ -7,11 +7,11 @@ from pathlib import Path
 from tkinter import messagebox
 
 from balloon_analysis.utility import spec_analysis_utils as sau
-from balloon_analysis.utility import io
+from balloon_analysis.utility import io_handlers
 
 
 def spec_to_csv(spec_path: Path, output_dir: Path) -> Path:
-    times, spectra, meta = io.load_spec_file(spec_path)
+    times, spectra, meta = io_handlers.load_spec_file(spec_path)
     output_dir.mkdir(parents=True, exist_ok=True)
     out_path = output_dir / f"{spec_path.stem}.csv"
 
@@ -47,7 +47,7 @@ def convert_folder(folder: Path) -> tuple[list[Path], list[tuple[Path, Exception
 
 
 def main() -> None:
-    folder = io.select_folder(Path.cwd())
+    folder = io_handlers.select_folder(Path.cwd())
     if folder is None:
         return
 

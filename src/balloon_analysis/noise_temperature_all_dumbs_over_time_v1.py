@@ -21,7 +21,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import spec_analysis_utils as sau
-from balloon_analysis.utility import io
+from balloon_analysis.utility import io_handlers
 
 TIMESTAMP_RE = re.compile(r"^(\d{14})")
 LOAD_RE = re.compile(r"(hot|cold)$", re.IGNORECASE)
@@ -135,8 +135,8 @@ def calculate_noise_temperatures(
     first_timestamp = min(min(p.hot.timestamp, p.cold.timestamp) for p in pairs)
 
     for pair in pairs:
-        _, hot, _ = io.load_spec_file(pair.hot.path)
-        _, cold, _ = io.load_spec_file(pair.cold.path)
+        _, hot, _ = io_handlers.load_spec_file(pair.hot.path)
+        _, cold, _ = io_handlers.load_spec_file(pair.cold.path)
         if hot.shape != cold.shape:
             raise ValueError(f"Shape mismatch for {pair.hot.path.name} and {pair.cold.path.name}.")
         values = noise_temperature_per_dump(
@@ -181,7 +181,7 @@ def main() -> None:
     if thot is None or tcold is None:
         parser.error("Hot/cold temperatures are missing; supply --thot and --tcold.")
 
-    _, first_spectrum, first_meta = io.load_spec_file(pairs[0].hot.path)
+    _, first_spectrum, first_meta = io_handlers.load_spec_file(pairs[0].hot.path)
     bandwidth = sau.get_bw_ghz(header) or sau._parse_frequency_ghz(first_meta.get("bandwidth"))
     center_bin = args.bin if args.bin is not None else frequency_to_bin(args.if_frequency, bandwidth, first_spectrum.shape[1])
 

@@ -175,7 +175,7 @@ def main(argv: list[str] | None = None) -> None:
 
     project_root = Path(__file__).resolve().parents[2]
     default_data_dir = project_root / "data"
-    meas_dir = io.select_folder(default_data_dir if default_data_dir.is_dir() else project_root)
+    meas_dir = io_handlers.select_folder(default_data_dir if default_data_dir.is_dir() else project_root)
     if meas_dir is None or not meas_dir.is_dir():
         print("No valid measurement directory selected. Exiting."); return
     meas_dir = sau.resolve_measurement_dir_with_specs(meas_dir)

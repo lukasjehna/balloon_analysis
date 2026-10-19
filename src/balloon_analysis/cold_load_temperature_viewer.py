@@ -221,7 +221,7 @@ def main():
     args = parser.parse_args()
 
     directory = (
-        sau.io.select_folder(Path.cwd())
+        io_handlers.select_folder(Path.cwd())
         if args.directory is None
         else Path(args.directory).expanduser().resolve()
     )

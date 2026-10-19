@@ -1,10 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Sep 11 09:58:01 2026
-
-@author: antonia
-"""
 
 from pathlib import Path
 import pandas as pd
@@ -18,7 +12,7 @@ from scipy.interpolate import CubicSpline
 
 # %%
 
-# Savitzky-Golay Filter und ohne Mittelung
+# Savitzky-Golay filter without averaging
 
 ordner = Path(r"/Users/antonia/Desktop/Kiruna_01Uhr")
 
@@ -26,7 +20,7 @@ ordner = Path(r"/Users/antonia/Desktop/Kiruna_01Uhr")
 hot_dateien = sorted(ordner.glob("*hot.csv"))
 cold_dateien = sorted(ordner.glob("*cold.csv"))
 
-print("Anzahl gemittleter Datein:", len(hot_dateien))
+print("Number of averaged files:", len(hot_dateien))
 
 
 data = pd.read_csv(hot_dateien[0])
@@ -205,7 +199,7 @@ plt.show()
 
 # %%
 
-# ohne Mittelung und ohne Fit / Filter / Spline
+# Without avering and without fit / filter / spline
 
 def error(offset):
     
@@ -243,7 +237,7 @@ plt.show()
 
 # %%
 
-# mit mittelung und Savitzky-Golay Filter:
+# With average und Savitzky-Golay Filter:
     
 ordner = Path(r"/Users/antonia/Desktop/Kiruna_01Uhr")
 

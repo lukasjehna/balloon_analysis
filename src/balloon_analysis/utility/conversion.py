@@ -7,7 +7,7 @@ from pathlib import Path
 
 import numpy as np
 
-from balloon_analysis.utility import io
+from balloon_analysis.utility import io_handlers
 
 # --------------------------------------------------------------------------- #
 # Constants
@@ -205,7 +205,7 @@ def accumulate_group_average(files: list[Path]) -> tuple[np.ndarray, int]:
     total_n = 0
 
     for spec_path in files:
-        _, spectra, _ = io.load_spec_file(spec_path)
+        _, spectra, _ = io_handlers.load_spec_file(spec_path)
         n_spectra, n_bins = spectra.shape
 
         if sum_spectrum is None:
@@ -227,5 +227,5 @@ def accumulate_group_average(files: list[Path]) -> tuple[np.ndarray, int]:
 
 def file_mean_spectrum(spec_path: Path) -> np.ndarray:
     """Mean squared-count spectrum of a single .spec file."""
-    _, spectra, _ = io.load_spec_file(spec_path)
+    _, spectra, _ = io_handlers.load_spec_file(spec_path)
     return _squared_counts(spectra).mean(axis=0)

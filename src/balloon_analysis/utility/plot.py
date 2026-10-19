@@ -7,14 +7,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from balloon_analysis.utility import conversion as conv
-from balloon_analysis.utility import filter, io
+from balloon_analysis.utility import filter, io_handlers
 
 
 def build_x_axis(n_bins: int, header_meta: dict[str, str], x_axis_mode: str) -> tuple[np.ndarray, str]:
     if x_axis_mode == "bins":
         return np.arange(n_bins), "Bin index"
 
-    bw_ghz = io.get_bw_ghz(header_meta)
+    bw_ghz = io_handlers.get_bw_ghz(header_meta)
     if bw_ghz is None or bw_ghz <= 0:
         return np.arange(n_bins), "Bin index"
 
@@ -32,7 +32,7 @@ def apply_x_axis_format(
         ax.set_xlabel("Bin index")
         return
 
-    f_lo_ghz = io.get_lo_ghz(header_meta)
+    f_lo_ghz = io_handlers.get_lo_ghz(header_meta)
     if x_axis_mode == "frequency":
         ax.set_xlabel("f_IF [GHz]" if f_lo_ghz is None else f"f_IF [GHz] (f_LO={f_lo_ghz:.6f} GHz)")
         return
@@ -73,8 +73,8 @@ def plot_hot_cold_average(
     ax.set_ylabel("Counts [arb.]")
     ax.grid(True, alpha=0.3)
 
-    f_lo = io.get_header_value(header_meta, "f_LO", "f_RX")
-    bw = io.get_header_value(header_meta, "BW", "bandwidth")
+    f_lo = io_handlers.get_header_value(header_meta, "f_LO", "f_RX")
+    bw = io_handlers.get_header_value(header_meta, "BW", "bandwidth")
     t_hot = header_meta.get("t_hot")
     t_cold = header_meta.get("t_cold")
 
@@ -106,7 +106,7 @@ def plot_all_hot_cold_lines(
 
     total_hot_spectra = 0
     for spec_path in hot_files:
-        _, spectra, _ = io.load_spec_file(spec_path)
+        _, spectra, _ = io_handlers.load_spec_file(spec_path)
         n_spectra, n_bins = spectra.shape
         x, x_label = build_x_axis(n_bins, header_meta, x_axis_mode)
         for i in range(n_spectra):
@@ -118,7 +118,7 @@ def plot_all_hot_cold_lines(
 
     total_cold_spectra = 0
     for spec_path in cold_files:
-        _, spectra, _ = io.load_spec_file(spec_path)
+        _, spectra, _ = io_handlers.load_spec_file(spec_path)
         n_spectra, n_bins = spectra.shape
         x, x_label = build_x_axis(n_bins, header_meta, x_axis_mode)
         for i in range(n_spectra):
@@ -132,8 +132,8 @@ def plot_all_hot_cold_lines(
     ax.set_ylabel("Counts [arb.]")
     ax.grid(True, alpha=0.3)
 
-    f_lo = io.get_header_value(header_meta, "f_LO", "f_RX")
-    bw = io.get_header_value(header_meta, "BW", "bandwidth")
+    f_lo = io_handlers.get_header_value(header_meta, "f_LO", "f_RX")
+    bw = io_handlers.get_header_value(header_meta, "BW", "bandwidth")
     title_parts: list[str] = []
     if f_lo:
         title_parts.append(f"f_LO={f_lo}")
@@ -158,7 +158,7 @@ def plot_noise_temperature(
     y_max: float = 30000.0,
     despike_enabled: bool = False,
 ) -> Path | None:
-    t_hot_k, t_cold_k = io.extract_hot_cold_kelvin(header_meta)
+    t_hot_k, t_cold_k = io_handlers.extract_hot_cold_kelvin(header_meta)
     if t_hot_k is None or t_cold_k is None:
         print("Skipping noise-temperature plot: missing t_hot/t_cold in header.")
         return None
@@ -303,7 +303,7 @@ def launch_interactive_noise_temperature_browser(
         t_cold_k = e.get("t_cold_k")
         if (t_hot_k is None or t_cold_k is None) and isinstance(e.get("header_meta"), dict):
             h = e["header_meta"]
-            t_hot_k, t_cold_k = io.extract_hot_cold_kelvin(h)
+            t_hot_k, t_cold_k = io_handlers.extract_hot_cold_kelvin(h)
 
         if t_hot_k is None or t_cold_k is None:
             return np.full_like(hot, np.nan, dtype=float), removed

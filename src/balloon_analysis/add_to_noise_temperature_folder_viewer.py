@@ -305,7 +305,7 @@ def main():
     args = parser.parse_args()
 
     default_folder = Path("/mnt/c/DLR/Data")
-    directory = sau.io.select_folder(default_folder) if args.directory is None else Path(args.directory).expanduser().resolve()
+    directory = io_handlers.select_folder(default_folder) if args.directory is None else Path(args.directory).expanduser().resolve()
     if directory is None:
         return
     if not directory.is_dir():

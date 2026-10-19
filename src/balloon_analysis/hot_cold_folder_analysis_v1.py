@@ -77,7 +77,7 @@ def main(argv: Optional[List[str]] = None) -> None:
     default_data_dir = project_root / "data"
     if not default_data_dir.is_dir():
         default_data_dir = project_root
-    meas_dir = spectrometer_analysis_utils.io.select_folder(default_data_dir)
+    meas_dir = spectrometer_analysis_utils.io_handlers.select_folder(default_data_dir)
 
     if meas_dir is None or not meas_dir.is_dir():
         print("No valid measurement directory selected. Exiting.")

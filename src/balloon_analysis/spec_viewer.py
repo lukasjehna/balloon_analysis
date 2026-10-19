@@ -33,7 +33,7 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import Button, TextBox
 
 from balloon_analysis.utility import spec_analysis_utils as sau
-from balloon_analysis.utility import io
+from balloon_analysis.utility import io_handlers
 
 _NUM_RE = re.compile(r"(\d+)")
 
@@ -80,7 +80,7 @@ class SpecViewer:
     # ---- data loading -------------------------------------------------
     def _load_mean_uncached(self, path_str: str):
         path = Path(path_str)
-        _, spectra, meta = io.load_spec_file(path)
+        _, spectra, meta = io_handlers.load_spec_file(path)
         mean_spec = (spectra.astype(float) ** 2).mean(axis=0)
         return mean_spec, meta
 
@@ -213,7 +213,7 @@ def main(argv: list[str] | None = None) -> None:
     args = parser.parse_args(argv)
 
     if args.directory is None:
-        chosen = io.select_folder(Path.cwd())
+        chosen = io_handlers.select_folder(Path.cwd())
         if chosen is None:
             print("No directory selected. Exiting.")
             return

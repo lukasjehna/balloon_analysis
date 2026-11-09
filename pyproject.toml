@@ -48,5 +48,5 @@ spec-conv-folder         = "balloon_analysis.spec_to_csv_conv_folder:main"
 t-format-conv            = "balloon_analysis.t_format_converter:main"
 
 [build-system]
-requires = ["uv_build>=-1.12.5,<0.13.0"]
+requires = ["uv_build>=0.12.5,<0.13.0"]
 build-backend = "uv_build"

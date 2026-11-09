@@ -68,26 +68,18 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "allantools" },
+    { name = "ipykernel" },
     { name = "matplotlib" },
     { name = "pandas" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "ipykernel" },
     { name = "pytest" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "allantools", specifier = ">=2024.6" },
+    { name = "ipykernel", specifier = ">=7.4.0" },
     { name = "matplotlib", specifier = ">=3.11.1" },
     { name = "pandas", specifier = ">=3.0.5" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "ipykernel", specifier = ">=7.4.0" },
     { name = "pytest", specifier = ">=9.1.1" },
 ]
 

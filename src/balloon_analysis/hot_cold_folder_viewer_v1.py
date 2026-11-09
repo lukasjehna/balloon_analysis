@@ -137,7 +137,7 @@ class NoiseTemperatureViewer:
                 self.ax.set_xlim(float(x[0]), float(x[-1]))
             self.ax.relim()
             self.ax.autoscale_view(scalex=False, scaley=True)
-            sau.apply_x_axis_format(self.ax, self.header_meta, self.x_axis, xlabel)
+            plot.apply_x_axis_format(self.ax, self.header_meta, self.x_axis, xlabel)
             finite = tnoise[np.isfinite(tnoise)]
             median = np.median(finite) if finite.size else float("nan")
             self.ax.set_title(
@@ -170,7 +170,7 @@ def main():
     if not pairs:
         parser.error("No timestamped hot/cold pairs found within the requested tolerance.")
     print(f"Found {len(pairs)} hot/cold pairs in {directory}")
-    viewer = NoiseTemperatureViewer(pairs, sau.parse_header_csv(directory), args.thot, args.tcold,
+    viewer = NoiseTemperatureViewer(pairs, io_handlers.parse_header_csv(directory), args.thot, args.tcold,
                                     args.x_axis, max(4, args.cache_size))
     plt.show()
 

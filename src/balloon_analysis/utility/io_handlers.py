@@ -143,6 +143,54 @@ def parse_header_csv(meas_dir: Path) -> dict[str, str]:
 # .spec loading
 # --------------------------------------------------------------------------- #
 
+def read_spec_header(spec_path: Path | str) -> dict[str, str]:
+    """Read and parse the first row of a .spec file without loading the binary payload."""
+    path = Path(spec_path)
+    if path.is_dir():
+        candidate = next(path.glob("*.spec"), None)
+        if candidate is None:
+            return {}
+        path = candidate
+
+    if not path.is_file():
+        return {}
+
+    try:
+        with path.open("rb") as f:
+            first_line = f.readline().decode("ascii", errors="replace").strip()
+        return _parse_header_line(first_line)
+    except OSError:
+        return {}
+
+def resolve_metadata(
+    header_meta: dict[str, str] | None = None,
+    spec_path: Path | str | None = None,
+) -> dict[str, str]:
+    """
+    Resolve metadata prioritizing dedicated header CSV entries over inline .spec header.
+
+    1. First checks dedicated header CSV (header_meta).
+    2. Alternatively / fallback: inspects first row of the .spec file.
+    """
+    merged: dict[str, str] = {}
+
+    # Inspect header_meta for path hints if spec_path is not explicitly passed
+    if spec_path is None and header_meta:
+        for key in ("spec_path", "spec_file", "path", "file"):
+            if key in header_meta and header_meta[key]:
+                spec_path = header_meta[key]
+                break
+
+    # Fallback: parse first row of .spec file
+    if spec_path is not None:
+        merged.update(read_spec_header(spec_path))
+
+    # Primary: dedicated header CSV entries overwrite/populate
+    if header_meta:
+        merged.update(header_meta)
+
+    return merged
+
 def _read_inline_header(file_bytes: bytes) -> tuple[str, dict[str, str], bytes] | None:
     """Return (header_line, meta, payload) if an inline header exists, else None."""
     nl = file_bytes.find(b"\n")

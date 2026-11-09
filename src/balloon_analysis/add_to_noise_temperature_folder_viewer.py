@@ -14,7 +14,7 @@ from matplotlib.widgets import Button, RadioButtons, TextBox
 
 from balloon_analysis.utility import spec_analysis_utils as sau
 from balloon_analysis.utility import conversion as conv
-
+from balloon_analysis.utility import plot
 STAMP_RE = re.compile(r"^(\d{14})")
 LOAD_RE = re.compile(r"(hot|cold)$", re.IGNORECASE)
 
@@ -266,7 +266,7 @@ class NoiseTemperatureViewer:
                 cold_plot = bin_spectrum_1d(cold_plot, self.spectral_bin_size)
                 result_plot = bin_spectrum_1d(result_plot, self.spectral_bin_size)
 
-            x, xlabel = sau.build_x_axis(result_plot.size, self.header_meta, self.x_axis)
+            x, xlabel = plot.build_x_axis(result_plot.size, self.header_meta, self.x_axis)
             self.line_result.set_data(x, result_plot)
             self.line_hot.set_data(x, hot_plot)
             self.line_cold.set_data(x, cold_plot)
@@ -277,7 +277,7 @@ class NoiseTemperatureViewer:
 
             self.ax_result.set_ylabel(result_ylabel)
             self.ax_aux.set_ylabel("Y-factor")
-            sau.apply_x_axis_format(self.ax_aux, self.header_meta, self.x_axis, xlabel)
+            plot.apply_x_axis_format(self.ax_aux, self.header_meta, self.x_axis, xlabel)
             self.ax_result.set_title(
                 f"[{self.index + 1}/{len(self.pairs)}] {self.calc_mode} | "
                 f"{group[0][0].name} | T_hot={self.thot:.2f} K, "
@@ -317,7 +317,7 @@ def main():
 
     NoiseTemperatureViewer(
         pairs=pairs,
-        header_meta=sau.parse_header_csv(directory),
+        header_meta=io_handlers.parse_header_csv(directory),
         thot=args.thot,
         tcold=args.tcold,
         x_axis=args.x_axis,

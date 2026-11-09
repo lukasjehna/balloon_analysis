@@ -167,7 +167,7 @@ class SpecViewer:
             return
 
         _times, spectra, meta = loaded
-        x, xlabel = sau.build_x_axis(spectra.shape[1], meta, self.x_axis_mode)
+        x, xlabel = plot.build_x_axis(spectra.shape[1], meta, self.x_axis_mode)
 
         for spectrum in spectra:
             self.ax_all.plot(x, spectrum, color="tab:blue", alpha=0.12, linewidth=0.8)
@@ -245,7 +245,7 @@ def main(argv: list[str] | None = None) -> None:
         print(f"No .spec files found in {measdir}")
         return
 
-    headermeta = sau.parse_header_csv(measdir)
+    headermeta = io_handlers.parse_header_csv(measdir)
     viewer = SpecViewer(spec_files, x_axis_mode=args.xaxis, headermeta=headermeta, cache_size=max(4, args.cache_size))
     viewer.jump(max(0, min(len(spec_files) - 1, args.start - 1)))
     viewer.show()

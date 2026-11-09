@@ -139,7 +139,7 @@ def _launch_interactive_pairs(entries: Sequence[dict[str, object]], header_meta:
             ax_spec.set_xlim(0, 1)
         for axis in (ax_spec, ax_noise):
             axis.relim(); axis.autoscale_view(scalex=False, scaley=True)
-            sau.apply_x_axis_format(axis, header_meta, x_axis_mode, label)
+            plot.apply_x_axis_format(axis, header_meta, x_axis_mode, label)
         i0, i1 = 200, min(1851, noise.size)
         mean = float(np.nanmean(noise[i0:i1])) if i1 > i0 and np.any(np.isfinite(noise[i0:i1])) else float("nan")
         ax_spec.set_title(f"Pair {state['index'] + 1}/{len(entries)}: {entry['hot_path'].name}  |  {entry['cold_path'].name}")
@@ -187,7 +187,7 @@ def main(argv: list[str] | None = None) -> None:
     if not hot_files or not cold_files:
         print(f"Both hot and cold .spec files are required in {meas_dir}"); return
 
-    header_meta = sau.parse_header_csv(meas_dir)
+    header_meta = io_handlers.parse_header_csv(meas_dir)
     header_meta["t_hot"] = args.t_hot
     header_meta["t_cold"] = args.t_cold
     sau.print_header_meta(header_meta)

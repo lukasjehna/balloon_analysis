@@ -15,7 +15,7 @@ def spec_to_csv(spec_path: Path, output_dir: Path) -> Path:
     output_dir.mkdir(parents=True, exist_ok=True)
     out_path = output_dir / f"{spec_path.stem}.csv"
 
-    x, xlabel = sau.build_x_axis(spectra.shape[1], meta, "frequency")
+    x, xlabel = plot.build_x_axis(spectra.shape[1], meta, "frequency")
 
     with out_path.open("w", newline="", encoding="utf-8") as csv_file:
         writer = csv.writer(csv_file)

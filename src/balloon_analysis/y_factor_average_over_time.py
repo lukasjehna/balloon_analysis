@@ -197,7 +197,7 @@ def main() -> None:
     if not pairs:
         parser.error("No timestamped hot/cold pairs found within the requested tolerance.")
 
-    header = sau.parse_header_csv(directory)
+    header = io_handlers.parse_header_csv(directory)
     first_hot = pairs[0].hot.path
     _, first_spectrum, first_meta = io_handlers.load_spec_file(first_hot)
     n_bins = first_spectrum.shape[1]

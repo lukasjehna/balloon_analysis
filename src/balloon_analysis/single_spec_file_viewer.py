@@ -34,7 +34,7 @@ class SpecFileViewer:
         self.times, self.spectra, self.meta = io_handlers.load_spec_file(spec_path)
 
         self.n_spectra, self.n_bins = self.spectra.shape
-        self.x, self.xlabel = sau.build_x_axis(self.n_bins, self.meta, self.x_axis_mode)
+        self.x, self.xlabel = plot.build_x_axis(self.n_bins, self.meta, self.x_axis_mode)
 
         self.index = 0
         self.y_log = False

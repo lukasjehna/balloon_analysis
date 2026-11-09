@@ -184,7 +184,7 @@ class NoiseTemperatureViewer:
         try:
             group, hot_arr, cold_arr, tnoise = self._average_window(self.index)
             separation = float(np.mean([sep for _h, _c, sep in group]))
-            x, xlabel = sau.build_x_axis(tnoise.size, self.header_meta, self.x_axis)
+            x, xlabel = plot.build_x_axis(tnoise.size, self.header_meta, self.x_axis)
             self.line_nt.set_data(x, tnoise)
             self.line_hot.set_data(x, hot_arr)
             self.line_cold.set_data(x, cold_arr)
@@ -203,7 +203,7 @@ class NoiseTemperatureViewer:
             if self.y3min is not None and self.y3max is not None:
                 self.ax_diff.set_ylim(self.y3min, self.y3max)
 
-            sau.apply_x_axis_format(self.ax_diff, self.header_meta, self.x_axis, xlabel)
+            plot.apply_x_axis_format(self.ax_diff, self.header_meta, self.x_axis, xlabel)
             self.ax_nt.set_title(
                 f"[{self.index + 1}/{len(self.pairs)}] averaging {len(group)} pair(s) starting at "
                 f"{group[0][0].name} | mean Δt={separation:.1f} s | "
@@ -248,7 +248,7 @@ def main():
 
     viewer = NoiseTemperatureViewer(
         pairs,
-        sau.parse_header_csv(directory),
+        io_handlers.parse_header_csv(directory),
         args.thot,
         args.tcold,
         args.x_axis,

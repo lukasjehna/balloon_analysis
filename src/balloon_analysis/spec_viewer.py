@@ -32,11 +32,10 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Button, TextBox
 
-from balloon_analysis.utility import spec_analysis_utils as sau
-from balloon_analysis.utility import io_handlers
+from balloon_analysis.utility import browser, io_handlers, plot
 
 _NUM_RE = re.compile(r"(\d+)")
-
+DEFAULT_DATA_DIR = Path("/mnt/c/data")
 
 def _natural_sort_key(path: Path) -> tuple:
     """Sort filenames so embedded numbers (e.g. timestamps) order correctly."""
@@ -171,13 +170,20 @@ class SpecViewer:
             self.fig.canvas.draw_idle()
             return
 
-        x, x_label = sau.build_x_axis(mean_spec.size, self.header_meta, self.x_axis_mode)
+        # Pass spec_path=path to allow fallback to the .spec file header
+        x, x_label = plot.build_x_axis(
+            mean_spec.size, self.header_meta, self.x_axis_mode, spec_path=path
+        )
         self.line.set_data(x, mean_spec)
         if x.size > 1:
             self.ax.set_xlim(float(x[0]), float(x[-1]))
         self.ax.relim()
         self.ax.autoscale_view(scalex=False, scaley=True)
-        sau.apply_x_axis_format(self.ax, self.header_meta, self.x_axis_mode, x_label)
+        
+        # Pass spec_path=path here as well
+        plot.apply_x_axis_format(
+            self.ax, self.header_meta, self.x_axis_mode, x_label, spec_path=path
+        )
 
         n_spectra = meta.get("n_spectra") if meta else None
         int_time = meta.get("int_time_ms") if meta else None
@@ -212,8 +218,10 @@ def main(argv: list[str] | None = None) -> None:
                          help="Number of recently viewed spectra kept in memory (default: 64).")
     args = parser.parse_args(argv)
 
+    # Resolve directory from argument or launch folder selector starting in DEFAULT_DATA_DIR
     if args.directory is None:
-        chosen = io_handlers.select_folder(Path.cwd())
+        start_dir = DEFAULT_DATA_DIR if DEFAULT_DATA_DIR.is_dir() else Path.cwd()
+        chosen = browser.select_folder(start_dir)
         if chosen is None:
             print("No directory selected. Exiting.")
             return
@@ -225,14 +233,14 @@ def main(argv: list[str] | None = None) -> None:
         print(f"Not a directory: {meas_dir}")
         return
 
-    meas_dir = sau.resolve_measurement_dir_with_specs(meas_dir)
+    meas_dir = browser.resolve_measurement_dir_with_specs(meas_dir)
     spec_files = scan_spec_files(meas_dir, recursive=args.recursive)
     if not spec_files:
         print(f"No .spec files found in {meas_dir}" + (" (recursively)" if args.recursive else ""))
         return
 
     print(f"Found {len(spec_files)} .spec files in {meas_dir}.")
-    header_meta = sau.parse_header_csv(meas_dir)
+    header_meta = io_handlers.parse_header_csv(meas_dir)
 
     viewer = SpecViewer(spec_files, x_axis_mode=args.x_axis, header_meta=header_meta,
                          cache_size=max(4, args.cache_size))

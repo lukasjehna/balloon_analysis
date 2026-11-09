@@ -138,7 +138,7 @@ class NoiseTemperatureViewer:
         hot, cold, separation = self.pairs[self.index]
         try:
             hot_arr, cold_arr, tnoise = self._load_cached(str(hot), str(cold))
-            x, xlabel = sau.build_x_axis(tnoise.size, self.header_meta, self.x_axis)
+            x, xlabel = plot.build_x_axis(tnoise.size, self.header_meta, self.x_axis)
 
             self.line_nt.set_data(x, tnoise)
             self.line_hot.set_data(x, hot_arr)
@@ -151,7 +151,7 @@ class NoiseTemperatureViewer:
                 ax.relim()
                 ax.autoscale_view(scalex=False, scaley=True)
 
-            sau.apply_x_axis_format(self.ax_diff, self.header_meta, self.x_axis, xlabel)
+            plot.apply_x_axis_format(self.ax_diff, self.header_meta, self.x_axis, xlabel)
             self.ax_nt.set_title(
                 f"[{self.index + 1}/{len(self.pairs)}] hot: {hot.name} | cold: {cold.name}\n"
                 f"Δt={separation:.1f} s | T_hot={self.thot:.2f} K | T_cold={self.tcold:.2f} K"
@@ -185,7 +185,7 @@ def main():
     if not pairs:
         parser.error("No timestamped hot/cold pairs found within the requested tolerance.")
     print(f"Found {len(pairs)} hot/cold pairs in {directory}")
-    viewer = NoiseTemperatureViewer(pairs, sau.parse_header_csv(directory), args.thot, args.tcold,
+    viewer = NoiseTemperatureViewer(pairs, io_handlers.parse_header_csv(directory), args.thot, args.tcold,
                                     args.x_axis, max(4, args.cache_size))
     plt.show()
 

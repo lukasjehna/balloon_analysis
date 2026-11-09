@@ -20,6 +20,7 @@ import numpy as np
 from matplotlib.widgets import Button, TextBox
 
 from balloon_analysis.utility import spec_analysis_utils as sau
+from balloon_analysis.utility import plot
 
 STAMP_RE = re.compile(r"^(\d{14})")
 LOAD_RE = re.compile(r"(hot|cold)$", re.IGNORECASE)
@@ -173,13 +174,13 @@ class ColdLoadTemperatureViewer:
         hot, cold, separation = self.pairs[self.index]
         try:
             tcold = self._load_cached(str(hot), str(cold))
-            x, xlabel = sau.build_x_axis(tcold.size, self.header_meta, self.x_axis)
+            x, xlabel = plot.build_x_axis(tcold.size, self.header_meta, self.x_axis)
             self.line.set_data(x, tcold)
             if x.size > 1:
                 self.ax.set_xlim(float(x[0]), float(x[-1]))
             self.ax.relim()
             self.ax.autoscale_view(scalex=False, scaley=True)
-            sau.apply_x_axis_format(self.ax, self.header_meta, self.x_axis, xlabel)
+            plot.apply_x_axis_format(self.ax, self.header_meta, self.x_axis, xlabel)
 
             finite = tcold[np.isfinite(tcold)]
             median = np.median(finite) if finite.size else float("nan")
@@ -237,7 +238,7 @@ def main():
     print(f"Found {len(pairs)} hot/cold pairs in {directory}")
     ColdLoadTemperatureViewer(
         pairs,
-        sau.parse_header_csv(directory),
+        io_handlers.parse_header_csv(directory),
         args.tnoise,
         args.thot,
         args.x_axis,

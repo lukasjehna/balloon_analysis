@@ -122,7 +122,7 @@ def main(argv: list[str] | None = None) -> None:
         avg_hot, _ = sau.accumulate_group_average(hot_files)
         avg_cold, _ = sau.accumulate_group_average(cold_files)
 
-        header_meta = sau.parse_header_csv(meas_dir)
+        header_meta = io_handlers.parse_header_csv(meas_dir)
         # Also read inline metadata from the .spec file so bandwidth is available
         _, _, spec_meta = io_handlers.load_spec_file(spec_files[0])
         header_meta = {**header_meta, **{k: str(v) for k, v in spec_meta.items() if v is not None}}

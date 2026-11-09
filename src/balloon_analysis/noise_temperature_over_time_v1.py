@@ -190,7 +190,7 @@ def main() -> None:
     if not pairs:
         parser.error("No timestamped hot/cold pairs found within the requested tolerance.")
 
-    header = sau.parse_header_csv(directory)
+    header = io_handlers.parse_header_csv(directory)
     thot_from_header, tcold_from_header = sau.extract_hot_cold_kelvin(header)
     thot = args.thot if args.thot is not None else thot_from_header
     tcold = args.tcold if args.tcold is not None else tcold_from_header

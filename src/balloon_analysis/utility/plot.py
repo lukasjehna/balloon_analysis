@@ -10,11 +10,17 @@ from balloon_analysis.utility import conversion as conv
 from balloon_analysis.utility import filter, io_handlers
 
 
-def build_x_axis(n_bins: int, header_meta: dict[str, str], x_axis_mode: str) -> tuple[np.ndarray, str]:
+def build_x_axis(
+    n_bins: int,
+    header_meta: dict[str, str] | None = None,
+    x_axis_mode: str = "frequency",
+    spec_path: Path | str | None = None,
+) -> tuple[np.ndarray, str]:
     if x_axis_mode == "bins":
         return np.arange(n_bins), "Bin index"
 
-    bw_ghz = io_handlers.get_bw_ghz(header_meta)
+    meta = io_handlers.resolve_metadata(header_meta, spec_path)
+    bw_ghz = io_handlers.get_bw_ghz(meta)
     if bw_ghz is None or bw_ghz <= 0:
         return np.arange(n_bins), "Bin index"
 
@@ -24,15 +30,18 @@ def build_x_axis(n_bins: int, header_meta: dict[str, str], x_axis_mode: str) -> 
 
 def apply_x_axis_format(
     ax: plt.Axes,
-    header_meta: dict[str, str],
-    x_axis_mode: str,
-    default_label: str,
+    header_meta: dict[str, str] | None = None,
+    x_axis_mode: str = "frequency",
+    default_label: str = "",
+    spec_path: Path | str | None = None,
 ) -> None:
+    meta = io_handlers.resolve_metadata(header_meta, spec_path)
+
     if x_axis_mode == "bins" or default_label == "Bin index":
         ax.set_xlabel("Bin index")
         return
 
-    f_lo_ghz = io_handlers.get_lo_ghz(header_meta)
+    f_lo_ghz = io_handlers.get_lo_ghz(meta)
     if x_axis_mode == "frequency":
         ax.set_xlabel("f_IF [GHz]" if f_lo_ghz is None else f"f_IF [GHz] (f_LO={f_lo_ghz:.6f} GHz)")
         return
@@ -169,9 +178,9 @@ def plot_noise_temperature(
         t_noise, _ = filter.despike_1d(t_noise)
 
     fig, ax = plt.subplots(figsize=(10, 5))
-    x, x_label = plot.build_x_axis(t_noise.size, header_meta, x_axis_mode)
+    x, x_label = build_x_axis(t_noise.size, header_meta, x_axis_mode)
     ax.plot(x, t_noise, color="tab:green", linewidth=1.0)
-    plot.apply_x_axis_format(ax, header_meta, x_axis_mode, x_label)
+    apply_x_axis_format(ax, header_meta, x_axis_mode, x_label)
     ax.set_ylabel("Noise temperature [K]")
     ax.set_ylim(y_min, y_max)
     ax.grid(True, alpha=0.3)

@@ -11,17 +11,42 @@ dependencies = [
     "allantools>=2024.6",
     "matplotlib>=3.11.1",
     "pandas>=3.0.5",
-]
-
-[project.scripts]
-balloon-analysis = "balloon_analysis:main"
-
-[build-system]
-requires = ["uv_build>=0.12.5,<0.13.0"]
-build-backend = "uv_build"
-
-[dependency-groups]
-dev = [
     "ipykernel>=7.4.0",
     "pytest>=9.1.1",
 ]
+
+[project.scripts]
+# Housekeeping & Stability
+housekeeping             = "balloon_analysis.housekeeping:main"
+allan-time               = "balloon_analysis.allan_time:main"
+fit-spline               = "balloon_analysis.fit_spline:main"
+
+# Cold Load & Hot/Cold Calibrations
+cold-load-temp-time      = "balloon_analysis.cold_load_temperature_over_time:main"
+cold-load-temp-viewer    = "balloon_analysis.cold_load_temperature_viewer:main"
+hot-cold-analysis        = "balloon_analysis.hot_cold_folder_analysis:main"
+hot-cold-viewer          = "balloon_analysis.hot_cold_folder_viewer:main"
+
+# Noise Temperature
+tn-folder-viewer         = "balloon_analysis.add_to_noise_temperature_folder_viewer:main"
+tn-freq-scan             = "balloon_analysis.noise_temperature_frequency_scan:main"
+tn-avg-time              = "balloon_analysis.noise_temperature_average_over_time:main"
+tn-dumps-time            = "balloon_analysis.noise_temperature_all_dumbs_over_time:main"
+tn-dumps-time-v1         = "balloon_analysis.noise_temperature_all_dumbs_over_time_v1:main"
+
+# Y-Factor Analysis
+y-factor-fit             = "balloon_analysis.y_factor_fit:main"
+y-factor-avg-time        = "balloon_analysis.y_factor_average_over_time:main"
+y-factor-dumps-time      = "balloon_analysis.y_factor_all_dumps_over_time:main"
+
+# Spectra Inspection & Format Conversion
+spec-viewer              = "balloon_analysis.spec_viewer:main"
+spec-file-viewer         = "balloon_analysis.single_spec_file_viewer:main"
+spec-folder-viewer       = "balloon_analysis.spec_folder_viewer:main"
+spec-conv-file           = "balloon_analysis.spec_to_csv_conv_file:main"
+spec-conv-folder         = "balloon_analysis.spec_to_csv_conv_folder:main"
+t-format-conv            = "balloon_analysis.t_format_converter:main"
+
+[build-system]
+requires = ["uv_build>=-1.12.5,<0.13.0"]
+build-backend = "uv_build"
